@@ -1,0 +1,46 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@400;500;600&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1440px;height:900px;overflow:hidden;background:#161514;color:#f4f1ec;font:14px/1.45 Inter,sans-serif;display:grid;grid-template-rows:64px 300px 1fr}
+header{display:flex;align-items:center;gap:22px;padding:0 28px;border-bottom:1px solid #2c2a27}
+header b{font:800 22px 'Barlow Condensed';letter-spacing:.04em;text-transform:uppercase}
+header nav{display:flex;gap:6px}header nav span{padding:6px 12px;border-radius:99px;color:#b9b3aa;font-weight:500}header nav .on{background:#f4f1ec;color:#161514}
+header p{margin-left:auto;color:#b9b3aa}
+.strip{display:flex;gap:10px;padding:22px 28px 0;position:relative}
+.strip::before,.strip::after{content:"";position:absolute;left:0;right:0;height:10px;background:repeating-linear-gradient(90deg,transparent 0 14px,#2c2a27 14px 26px)}
+.strip::before{top:6px}.strip::after{bottom:-4px}
+.fr{flex:1;display:flex;flex-direction:column;gap:6px;position:relative}
+.fr .img{height:200px;border-radius:3px;background:#2b2926;overflow:hidden}
+.fr small{font:700 12px 'Barlow Condensed';letter-spacing:.08em;color:#ffcf3a}
+.fr p{font-size:12.5px;color:#d8d3cb;line-height:1.3}
+.pick .img{outline:3px solid #e0362b;outline-offset:6px;border-radius:50% / 38%}
+.x .img{opacity:.35}.x::after{content:"";position:absolute;left:10%;right:10%;top:90px;height:3px;background:#e0362b;transform:rotate(-18deg)}
+.mark{position:absolute;top:-6px;right:-4px;font:30px 'Nanum Pen Script';color:#e0362b}
+.a{background:radial-gradient(120% 80% at 80% 0,#3a2a22,#1b1916 60%)!important}
+.b{background:#f08463!important}.c{background:#fbe6dd!important}.d{background:#f1f0ee!important}
+main{display:grid;grid-template-columns:1fr 1fr;gap:28px;padding:30px 28px}
+.feed{background:#fff;color:#111;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.who{display:flex;gap:10px;align-items:center}.av{width:40px;height:40px;border-radius:50%;background:#d24a22;color:#fff;display:grid;place-items:center;font-weight:700}
+.slide{height:300px;border-radius:10px;background:radial-gradient(120% 80% at 80% 0,#3a2a22,#1b1916 60%);color:#f3efe9;padding:28px;display:flex;flex-direction:column;justify-content:flex-end}
+.slide h3{font:500 36px/1.02 Inter;letter-spacing:-.03em}.slide em{color:#f0764f}
+.side{display:flex;flex-direction:column;gap:14px}
+.side h2{font:800 40px/1 'Barlow Condensed';text-transform:uppercase}
+.side .hand{font:34px 'Nanum Pen Script';color:#e0362b}
+.txt{background:#22201d;border-radius:10px;padding:14px;color:#e4dfd7}
+.row{display:flex;gap:10px}.btn{padding:13px 18px;border-radius:10px;background:#e0362b;color:#fff;font-weight:600}.g{background:transparent;border:1.5px solid #47433d}
+</style></head><body>
+<header><b>Post maker</b><nav><span class="on">Passalong</span><span>Squeeze</span><span>Fillie</span><span>Smalbum</span><span>Sabipedia</span></nav><p>Roll 18 Nov · 8 frames · 3 picks</p></header>
+<section class="strip">
+<div class="fr pick"><span class="mark">1</span><div class="img a"></div><small>FRAME 1 · CAROUSEL</small><p>Work arrives in six places</p></div>
+<div class="fr pick"><span class="mark">2</span><div class="img b"></div><small>FRAME 2 · CLIP 0:12</small><p>Can't log in, to fixed</p></div>
+<div class="fr pick"><span class="mark">3</span><div class="img c"></div><small>FRAME 3 · CLOSE-UP</small><p>Agents ask. People decide.</p></div>
+<div class="fr"><div class="img d"></div><small>FRAME 4</small><p>One agent per job</p></div>
+<div class="fr x"><div class="img a"></div><small>FRAME 5</small><p>Boost productivity with AI</p></div>
+<div class="fr x"><div class="img b"></div><small>FRAME 6</small><p>Revolutionise agents</p></div>
+</section>
+<main>
+<div class="feed"><div class="who"><div class="av">P</div><div><b>Passalong</b><br><small>1,204 followers · Now</small></div></div><p>Your team gets work from six places. Most small teams drop some of it without noticing… see more</p><div class="slide"><h3>Your team gets work from <em>six places.</em></h3></div></div>
+<div class="side"><span class="hand">pick 1 of 3</span><h2>Work arrives in six places</h2><p style="color:#b9b3aa">Carousel, 5 slides. LinkedIn, Instagram, X. Needs Ada's OK.</p><div class="txt">Your team gets work from six places. Most small teams drop some of it without noticing. Here's how Passalong makes all of it land in one place…</div><div class="row"><span class="btn">Copy text</span><span class="btn g">Copy slides</span><span class="btn g">Mark posted</span></div></div>
+</main>
+</body></html>

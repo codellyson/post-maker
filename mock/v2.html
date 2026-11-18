@@ -1,0 +1,632 @@
+<title>Post maker mock</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap">
+<style>
+/* Layout: app shell. Side nav on desktop, top bar on phone. Main column holds one screen at a time, routed by #hash. */
+:root {
+  --bg: #f2f3f0; --surface: #ffffff; --sunk: #e9ebe7; --fg: #15181a; --muted: #565e59;
+  --line: #d9ddd8; --accent: #12604d; --accent-fg: #ffffff; --accent-soft: #dcefe8;
+  --warn: #8a5a00; --warn-soft: #fbefd4; --bad: #a3321e; --bad-soft: #f8e0da;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111312; --surface: #1a1d1b; --sunk: #151816; --fg: #eceeeb; --muted: #9ba39e;
+  --line: #2c312e; --accent: #5ccaa6; --accent-fg: #0d1f19; --accent-soft: #173229;
+  --warn: #e7b450; --warn-soft: #2f2612; --bad: #f08a75; --bad-soft: #36201b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111312; --surface: #1a1d1b; --sunk: #151816; --fg: #eceeeb; --muted: #9ba39e;
+  --line: #2c312e; --accent: #5ccaa6; --accent-fg: #0d1f19; --accent-soft: #173229;
+  --warn: #e7b450; --warn-soft: #2f2612; --bad: #f08a75; --bad-soft: #36201b; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.5 var(--body); }
+.app { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
+nav.side { border-right: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; }
+.brand { font: 700 18px/1 var(--display); padding: 4px 10px 18px; display: flex; gap: 8px; align-items: center; white-space: nowrap; }
+.brand i { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); display: inline-block; }
+nav.side a { color: var(--muted); text-decoration: none; padding: 8px 10px; border-radius: 8px; font-weight: 500; display: flex; justify-content: space-between; gap: 8px; }
+nav.side a:hover { background: var(--sunk); color: var(--fg); }
+nav.side a[aria-current="page"] { background: var(--surface); color: var(--fg); box-shadow: 0 0 0 1px var(--line); }
+nav.side a span { font: 12px var(--mono); color: var(--muted); }
+.team { margin-top: auto; font-size: 12px; color: var(--muted); padding: 0 10px; }
+.mockflag { font: 500 11px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--warn); background: var(--warn-soft); padding: 3px 8px; border-radius: 99px; display: inline-block; margin-bottom: 6px; }
+
+main { padding-block: 28px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); min-width: 0; }
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 22px; }
+h1 { font: 700 clamp(1.6rem, 3.5vw, 2.1rem)/1.1 var(--display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h2 { font: 600 12px/1 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 62ch; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.between { justify-content: space-between; }
+
+button, .btn { font: 500 14px var(--body); cursor: pointer; border-radius: 8px; padding: 8px 14px; min-height: 38px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+button.ghost, .btn.ghost { background: var(--surface); color: var(--fg); border-color: var(--line); }
+button.small { min-height: 32px; padding: 5px 10px; font-size: 13px; }
+button.ok { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 99px; padding: 6px 12px; font-size: 13px; min-height: 0; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.pill { font: 500 11px var(--mono); letter-spacing: .03em; text-transform: uppercase; padding: 3px 8px; border-radius: 99px; background: var(--sunk); color: var(--muted); white-space: nowrap; }
+.pill.good { background: var(--accent-soft); color: var(--accent); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
+
+/* Today: one angle = image on the left, copy on the right */
+.angle { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; }
+.angle-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+.angle h3 { font: 600 17px/1.3 var(--body); margin: 0 0 4px; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin: 12px 0; overflow-x: auto; }
+.tab { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); border-radius: 0; padding: 8px 10px; min-height: 0; font-size: 13px; }
+.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--fg); }
+.copytext { white-space: pre-wrap; margin: 0; font: 14px/1.6 var(--body); background: var(--sunk); border-radius: 8px; padding: 14px; overflow-wrap: anywhere; }
+.count { font: 12px var(--mono); color: var(--muted); }
+.count.over { color: var(--bad); }
+.sizes { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+.sizes button { min-height: 28px; padding: 3px 8px; font: 12px var(--mono); }
+
+/* The designed post image, built from the product's brand */
+.frame-box { display: grid; place-items: center; background: var(--sunk); border-radius: 10px; padding: 14px; }
+.post-img { --b-bg: #1b1916; --b-fg: #f3efe9; --b-acc: #f0764f; width: 100%; max-width: 100%; aspect-ratio: 16/9; background: var(--b-bg); color: var(--b-fg); border-radius: 6px; overflow: hidden; position: relative; display: flex; flex-direction: column; padding: 5.5% 6%; gap: 4%; container-type: inline-size; }
+.post-img[data-size="1x1"] { aspect-ratio: 1; width: 82%; }
+.post-img[data-size="4x5"] { aspect-ratio: 4/5; width: 74%; }
+.post-img[data-size="9x16"] { aspect-ratio: 9/16; width: 52%; }
+.post-img .logo { display: flex; align-items: center; gap: 2.4cqw; font: 600 3.6cqw/1 var(--body); }
+.post-img .logo b { width: 5cqw; height: 5cqw; border-radius: 1.2cqw; background: #d24a22; color: #fff; display: grid; place-items: center; font-size: 3.4cqw; }
+.post-img .hl { font: 500 7.6cqw/1.02 var(--body); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.post-img .hl em { font: italic 400 8.4cqw/1 "Instrument Serif", Georgia, serif; color: var(--b-acc); letter-spacing: 0; }
+.post-img[data-size="16x9"] .hl { font-size: 5.6cqw; } .post-img[data-size="16x9"] .hl em { font-size: 6.2cqw; }
+.post-img .browser { flex: 1; min-height: 0; background: #fff; border-radius: 1.6cqw 1.6cqw 0 0; margin: 0 -1% -8%; overflow: hidden; box-shadow: 0 2cqw 6cqw rgba(0,0,0,.45); display: flex; flex-direction: column; }
+.post-img .bar { height: 4cqw; background: #e8e5e1; display: flex; align-items: center; gap: 1cqw; padding: 0 2cqw; flex: none; }
+.post-img .bar i { width: 1.4cqw; height: 1.4cqw; border-radius: 50%; background: #c9c4be; }
+.post-img .bar span { margin-left: 2cqw; font: 2cqw var(--mono); color: #4f4a44; }
+.post-img .browser img { width: 100%; flex: 1; min-height: 0; object-fit: cover; display: block; }
+.post-img .url { position: absolute; right: 6%; top: 6%; font: 2.6cqw var(--mono); opacity: .7; }
+
+.quality { display: grid; gap: 10px; }
+.quality li { margin: 0; }
+.dropped { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.dropped li { display: grid; gap: 2px; padding: 10px 12px; border-radius: 8px; background: var(--sunk); }
+.dropped s { color: var(--muted); }
+
+/* Products grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.product { display: grid; gap: 10px; text-decoration: none; color: inherit; }
+.product:hover { border-color: var(--muted); }
+.product h3 { margin: 0; font: 700 18px/1.2 var(--display); }
+.product .meta { font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.swatch { height: 6px; border-radius: 3px; }
+.stat { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.stat b { color: var(--fg); font-weight: 500; font-variant-numeric: tabular-nums; }
+.add { border-style: dashed; display: grid; place-items: center; text-align: center; color: var(--muted); min-height: 160px; }
+
+/* Forms */
+label { display: grid; gap: 6px; font-weight: 500; }
+label small { font-weight: 400; color: var(--muted); }
+input, textarea { font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; width: 100%; }
+textarea { min-height: 84px; resize: vertical; }
+.form { display: grid; gap: 16px; max-width: 620px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.steps li { display: flex; gap: 10px; align-items: flex-start; color: var(--muted); }
+.steps li::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); flex: none; margin-top: 3px; }
+.steps li.done { color: var(--fg); }
+.steps li.done::before { background: var(--accent); border-color: var(--accent); }
+.steps li.now::before { border-color: var(--accent); border-top-color: transparent; }
+@media (prefers-reduced-motion: no-preference) { .steps li.now::before { animation: spin .8s linear infinite; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Memory */
+.mem { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.editable { border-radius: 8px; padding: 10px 12px; background: var(--sunk); outline: none; }
+.editable:focus { box-shadow: 0 0 0 2px var(--accent); }
+.rules { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.rules li { display: flex; gap: 8px; align-items: baseline; padding: 8px 10px; background: var(--sunk); border-radius: 8px; }
+.rules li .pill { flex: none; }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.shot { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+.shot .img { aspect-ratio: 16/10; border-radius: 6px; border: 1px solid var(--line); overflow: hidden; background: var(--sunk); }
+.shot .img img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.shot .img.blank { display: grid; place-items: center; font: 11px var(--mono); }
+.shot label { display: flex; gap: 6px; align-items: center; font-weight: 400; }
+.shot input { width: auto; }
+
+/* Posted log */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.mark { position: relative; }
+.popover { position: absolute; z-index: 5; bottom: calc(100% + 6px); left: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: grid; gap: 8px; width: 240px; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 500; z-index: 20; max-width: calc(100% - 32px); }
+
+/* Today: feed-true preview on the left, the team's controls on the right */
+.post { display: grid; grid-template-columns: minmax(0, 500px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.preview { min-width: 0; }
+.preview .tabs { margin-top: 0; }
+.side-panel { display: grid; gap: 12px; min-width: 0; position: sticky; top: 16px; }
+.side-panel h3 { font: 600 17px/1.3 var(--body); margin: 0; }
+.why { margin: 0; color: var(--muted); }
+.why b { color: var(--fg); font-weight: 600; }
+.flag { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--warn-soft); color: var(--warn); font-weight: 500; }
+.edit-label { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-weight: 600; }
+.side-panel textarea { font: 13.5px/1.55 var(--body); min-height: 150px; }
+
+/* Feed chrome: a light card in every theme, because that is how the feeds look */
+.feed { --f-fg: #0f1419; --f-muted: #536471; --f-line: #e6e8ea; background: #ffffff; color: var(--f-fg); border: 1px solid var(--f-line); border-radius: 12px; padding: 14px; font: 15px/1.4 -apple-system, "Segoe UI", system-ui, sans-serif; display: grid; gap: 10px; }
+.f-row { display: flex; gap: 10px; align-items: flex-start; }
+.f-body { min-width: 0; flex: 1; display: grid; gap: 8px; }
+.av { width: 40px; height: 40px; border-radius: 50%; background: #d24a22; color: #fff; display: grid; place-items: center; font-weight: 700; flex: none; }
+.f-ig .av { width: 32px; height: 32px; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #e1306c; }
+.f-ig .f-row { align-items: center; }
+.f-name span, .f-meta { color: var(--f-muted); font-size: 13px; font-weight: 400; }
+.f-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14.5px; }
+.more { background: none; border: 0; padding: 0; min-height: 0; color: var(--f-muted); font: inherit; cursor: pointer; }
+.f-actions { display: flex; gap: 18px; color: var(--f-muted); font-size: 13px; padding-top: 2px; border-top: 1px solid var(--f-line); padding-top: 8px; }
+.f-x .f-actions { border-top: 0; padding-top: 0; justify-content: space-between; max-width: 360px; }
+
+/* Brand pieces shared by every format */
+.b-logo { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/1 Inter, system-ui, sans-serif; color: #f3efe9; }
+.b-logo b { width: 18px; height: 18px; border-radius: 5px; background: #d24a22; color: #fff; display: grid; place-items: center; font-size: 11px; }
+.s-crop { border-radius: 12px; box-shadow: 0 18px 40px rgba(0,0,0,.45); flex: 1; min-height: 0; }
+
+/* Carousel: 4:5 slides, one idea each */
+.m-carousel { position: relative; overflow: hidden; border-radius: 10px; aspect-ratio: 4/5; }
+.track { display: flex; height: 100%; }
+@media (prefers-reduced-motion: no-preference) { .track { transition: transform .35s ease; } }
+.slide { flex: 0 0 100%; height: 100%; container-type: inline-size; display: flex; flex-direction: column; gap: 14px; padding: 7% 7%; background: radial-gradient(120% 80% at 80% 0%, #3a2a22 0%, #1b1916 55%); color: #f3efe9; }
+.s-hl { font: 500 11cqw/1.02 Inter, system-ui, sans-serif; letter-spacing: -.025em; margin: 0; text-wrap: balance; }
+.s-hl em { font: italic 400 12cqw/1 "Instrument Serif", Georgia, serif; color: #f0764f; letter-spacing: 0; }
+.s-hl.s-small { font-size: 7.4cqw; }
+.s-sub { margin: 0; font: 4.4cqw/1.35 Inter, system-ui, sans-serif; color: #c9c1b8; }
+.s-url { margin: auto 0 0; font: 500 5cqw "IBM Plex Mono", monospace; color: #f0764f; }
+.s-cover .s-hl { margin-top: auto; }
+.s-swipe { font: 3.6cqw "IBM Plex Mono", monospace; color: #c9c1b8; align-self: flex-end; }
+.s-step { font: 600 3.6cqw/1 "IBM Plex Mono", monospace; color: #1b1916; background: #f0764f; border-radius: 99px; padding: 1.6cqw 3cqw; align-self: flex-start; }
+.s-cap { margin: 0; font: 500 6.2cqw/1.15 Inter, system-ui, sans-serif; letter-spacing: -.015em; }
+.s-text { justify-content: space-between; }
+.nav { position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; min-height: 0; padding: 0; border-radius: 50%; background: rgba(255,255,255,.92); color: #111; border: 0; font-size: 22px; line-height: 1; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+.nav.prev { left: 10px; } .nav.next { right: 10px; }
+.counter { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.65); color: #fff; font: 12px var(--mono); padding: 3px 8px; border-radius: 99px; }
+.dots { position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.5); }
+.dots i.on { background: #fff; }
+.m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: 14px; overflow: hidden; }
+.m-grid .slide { aspect-ratio: 1; height: auto; padding: 6%; gap: 6px; }
+.m-grid .s-swipe { display: none; }
+
+/* Clip: frames cross-fade on a loop, captions burned in */
+.m-clip { position: relative; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #1b1916; }
+.m-clip.tall { aspect-ratio: 4/5; }
+.clip-f { position: absolute; inset: 0; opacity: 0; animation: clipfade 12s infinite; animation-delay: calc(var(--j) * 2.4s); }
+.clip-f:first-child { opacity: 1; }
+.m-clip.paused .clip-f { animation-play-state: paused; }
+@keyframes clipfade { 0% { opacity: 0 } 2% { opacity: 1 } 18% { opacity: 1 } 21% { opacity: 0 } 100% { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { .clip-f { animation: none; } }
+.frame { height: 100%; container-type: inline-size; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 5% 6% 13%; background: radial-gradient(120% 90% at 20% 0%, #3a2a22 0%, #1b1916 60%); color: #f3efe9; }
+.frame .s-crop { flex: 1; }
+.f-code { margin: 0; font: 3.4cqw/1.5 "IBM Plex Mono", monospace; background: #0f0e0d; color: #d8f3e4; padding: 4cqw; border-radius: 8px; white-space: pre; overflow: hidden; }
+.frame .s-hl.s-small { font-size: 6cqw; }
+.f-cap { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 3% 6% 4%; font: 500 4cqw/1.3 Inter, system-ui, sans-serif; background: linear-gradient(transparent, rgba(0,0,0,.75) 30%); }
+.f-cap b { font-family: "IBM Plex Mono", monospace; color: #f0764f; font-weight: 500; margin-right: 1cqw; }
+.play, .dur, .mute { position: absolute; top: 10px; font: 12px var(--mono); border-radius: 99px; padding: 3px 9px; background: rgba(0,0,0,.65); color: #fff; border: 0; min-height: 0; }
+.play { left: 10px; cursor: pointer; } .dur { right: 10px; } .mute { right: 62px; }
+
+/* Single close-up image */
+.m-image { aspect-ratio: 16/10; border-radius: 14px; overflow: hidden; container-type: inline-size; display: flex; flex-direction: column; gap: 12px; padding: 5% 6% 0; background: radial-gradient(110% 90% at 80% 0%, #3a2a22 0%, #1b1916 60%); position: relative; }
+.m-image { padding-bottom: 6%; aspect-ratio: 4/3; }
+.m-image .i-cap em { font: italic 400 6cqw/1 "Instrument Serif", Georgia, serif; color: #f0764f; }
+.i-cap { margin: 0; padding-right: 26cqw; color: #f3efe9; font: 500 5.4cqw/1.1 Inter, system-ui, sans-serif; letter-spacing: -.02em; }
+.m-image .b-logo { position: absolute; right: 6cqw; top: 5.4cqw; }
+
+@media (max-width: 960px) { .post { grid-template-columns: minmax(0, 1fr); } .side-panel { position: static; } }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  nav.side { position: sticky; top: env(safe-area-inset-top, 0px); height: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); background: var(--bg); z-index: 8; padding: 10px max(12px, env(safe-area-inset-right, 0px)) 10px max(12px, env(safe-area-inset-left, 0px)); align-items: center; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+  .brand { padding: 0 8px 0 0; } .team { display: none; } nav.side a { white-space: nowrap; }
+  .angle, .mem, .two { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+
+<div class="app">
+  <nav class="side" aria-label="Main">
+    <div class="brand"><i></i>Post maker</div>
+    <a href="#today">Today <span>3</span></a>
+    <a href="#products">Products <span>5</span></a>
+    <a href="#add">Add product</a>
+    <a href="#posted">Posted</a>
+    <div class="team"><span class="mockflag">Clickable mock</span><br>Kreativekorna team · 3 people<br>Example data, nothing is saved.</div>
+  </nav>
+  <main><div class="wrap" id="view"></div></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const PRODUCTS = [
+  { id: 'passalong', name: 'Passalong', url: 'passalong.dev', colour: '#d24a22', week: 4, last: 'Today, Ada on LinkedIn', status: ['good', 'Memory up to date'] },
+  { id: 'squeeze', name: 'Squeeze', url: 'saasqueeze.kreativekorna.com', colour: '#4a90c8', week: 2, last: 'Mon, you on X', status: ['good', 'Memory up to date'] },
+  { id: 'fillie', name: 'Fillie', url: 'fillie.kreativekorna.com', colour: '#7a5bd1', week: 1, last: 'Last Thu, Tunde on X', status: ['warn', 'Site changed, re-read'] },
+  { id: 'smalbum', name: 'Smalbum', url: 'smalbum.kreativekorna.com', colour: '#c79a2c', week: 0, last: 'Nothing yet', status: ['warn', 'Needs a demo login'] },
+  { id: 'sabipedia', name: 'Sabipedia', url: 'sabipedia.com', colour: '#2f8a52', week: 3, last: 'Yesterday, you on Instagram', status: ['good', 'Memory up to date'] },
+];
+
+// Close-ups cut from the live site's own illustrations: one moment of the product each.
+const CROPS = {
+  work: { img: 'shot-work-list.png', bg: '#f1f0ee' },
+  sorted: { img: 'shot-sorted.png', bg: '#f08463' },
+  asks: { img: 'shot-agent-asks.png', bg: '#fbe6dd' },
+  docs: { img: 'shot-project-docs.png', bg: '#232220' },
+};
+
+const POSTS = [
+  { id: 'six-places', format: 'carousel', status: 'draft', pattern: 'How it works, in 5 slides',
+    why: 'Carousels get the most reach on LinkedIn and Instagram right now. Each slide is one step, shown on the real product.',
+    title: 'Work arrives in six places',
+    slides: [
+      { kind: 'cover', text: 'Your team gets work from <em>six places.</em>', sub: 'Here’s how it all lands in one.' },
+      { kind: 'shot', crop: 'work', step: '1', text: 'Everything comes in: the hub, email, your phone, alerts.' },
+      { kind: 'shot', crop: 'sorted', step: '2', text: 'Each one gets a clear title and goes to the right person.' },
+      { kind: 'shot', crop: 'asks', step: '3', text: 'An agent takes it, and asks when it needs an answer.' },
+      { kind: 'cta', text: 'Nothing gets <em>dropped.</em>', sub: 'passalong.dev' },
+    ],
+    copy: {
+      LinkedIn: `Your team gets work from six places. Most small teams drop some of it without noticing.
+
+Here's how Passalong makes all of it land in one place, in 5 slides.
+
+1. A line in the hub, a forwarded email, a screenshot from your phone, an alert. Each becomes work.
+2. Passalong reads each one, gives it a title anyone can read and sends it to the right person or agent.
+3. An agent takes it, reports as it goes, and asks when it needs an answer.
+4. It hands in with evidence, and a person approves it.
+
+Support and marketing need nothing installed. Developers connect Claude Code, Codex, ChatGPT or Claude.
+
+passalong.dev`,
+      Instagram: `Your team gets work from six places. Here's how it all lands in one. Swipe through.
+
+Emails, bugs, alerts and screenshots go to the right person or agent the moment they arrive, and come back with evidence.
+
+Link in bio.
+
+#smallteams #aiagents #devtools #buildinpublic`,
+      X: `Your team gets work from six places. Here's how Passalong makes it land in one:
+
+passalong.dev`,
+    } },
+  { id: 'email-to-fix', format: 'clip', status: 'draft', pattern: 'Demo highlight',
+    why: 'Short clips of the product doing one thing are the most shared launch format. Every frame has its caption burned in, so it works on mute.',
+    flag: 'The times are an example. Swap in a real fix from this week before posting.',
+    title: 'From “can’t log in” to fixed',
+    frames: [
+      { crop: 'sorted', time: '09:12', text: 'Kemi emails: she can’t log in. Passalong sorts it.' },
+      { crop: 'work', time: '09:13', text: 'It lands on the board, ready for an agent.' },
+      { crop: 'asks', time: '09:40', text: 'The agent finds the cause and asks Leo one question.' },
+      { kind: 'code', time: '10:05', text: 'It hands in what it ran and what came back.' },
+      { kind: 'text', time: '10:10', text: 'Leo approves it. Kemi is back in.' },
+    ],
+    copy: {
+      X: `Kemi emails support: "the reset link says expired".
+
+An agent finds the cause, asks one question, fixes it and shows its work. Leo approves it. Nobody copied anything between tools.
+
+The whole path, in 12 seconds:`,
+      LinkedIn: `A customer emails support: "I can't get into my account, the reset link says expired".
+
+09:12 Passalong turns the email into work, with a title anyone can read.
+09:40 An agent finds the cause: links expire after 60 seconds. It asks one question: keep old links working? Leo says yes, for an hour.
+10:05 It hands in the command it ran and what came back.
+10:10 Leo approves it.
+
+Support never opened a terminal. Nothing was copied between tools.
+
+passalong.dev`,
+      Instagram: `Forward the email. Get back the fix.
+
+Watch a "can't log in" go from a customer's inbox to fixed, in 12 seconds.
+
+Link in bio.
+
+#customersupport #aiagents #devtools`,
+    } },
+  { id: 'agent-asks', format: 'image', status: 'approved', approvedBy: 'Ada', pattern: 'One feature, one line',
+    why: 'One idea, one close-up. Works on X, where people scroll fastest.',
+    title: 'Agents ask when they need an answer',
+    crop: 'asks', caption: 'Agents ask. <em>People decide.</em>',
+    copy: {
+      X: `Your agent hits a choice it shouldn't make alone: keep old reset links working?
+
+In Passalong it asks, waits for a person, and carries on once someone answers.
+
+passalong.dev`,
+      LinkedIn: `The risky moment with an AI agent isn't the code. It's the decision it makes without asking.
+
+In Passalong, an agent that reaches a real choice asks, waits, and carries on once someone on the team answers. The question and the answer stay on the work, so the next agent reads them first.
+
+passalong.dev`,
+      Instagram: `Agents ask. People decide.
+
+Link in bio.
+
+#aiagents #devtools #buildinpublic`,
+    } },
+];
+
+const FOLD = { LinkedIn: 210, Instagram: 125 };
+const LIMITS = { X: 280, LinkedIn: 3000, Instagram: 2200 };
+const FORMAT_LABEL = { carousel: 'Carousel · 5 slides', clip: 'Clip · 0:12', image: 'Close-up image' };
+const DROPPED = [
+  ['Boost your team’s productivity with AI', 'Generic. Names no feature, could be any product.'],
+  ['Revolutionise how your agents collaborate', 'Uses a word Passalong’s voice bans (revolutionise). No evidence.'],
+];
+
+const POSTED = [
+  ['Today 09:40', 'Passalong', 'Feature spotlight', 'LinkedIn', 'Ada'],
+  ['Yesterday 18:02', 'Sabipedia', 'Did you know', 'Instagram', 'You'],
+  ['Yesterday 11:15', 'Passalong', 'Problem and fix', 'X', 'Tunde'],
+  ['Mon 16 Nov', 'Squeeze', 'Behind the build', 'X', 'You'],
+  ['Mon 16 Nov', 'Sabipedia', 'Explainer', 'LinkedIn', 'Ada'],
+  ['Thu 12 Nov', 'Fillie', 'Use case', 'X', 'Tunde'],
+];
+
+const state = { tab: {}, slide: {}, paused: {}, open: {} };
+const $ = s => document.querySelector(s);
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 1800); }
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); toast('Copied'); }
+  catch { toast('Copy blocked here. Select the text instead.'); }
+}
+
+const views = {
+  products() {
+    return `<header class="row between"><div><h1>Products</h1><p class="sub">Everything the team posts about. Each product keeps what Post maker learned: what it does, its voice, its screens, and what was already posted.</p></div><a class="btn" href="#add">Add product</a></header>
+    <div class="grid">
+      ${PRODUCTS.map(p => `<a class="panel product" href="${p.id === 'passalong' ? '#memory' : '#today'}">
+        <div class="swatch" style="background:${p.colour}"></div>
+        <div class="row between"><h3>${p.name}</h3><span class="pill ${p.status[0]}">${p.status[1]}</span></div>
+        <div class="meta">${p.url}</div>
+        <div class="stat"><span>Posted this week</span><b>${p.week}</b></div>
+        <div class="stat"><span>Last post</span><b>${p.last}</b></div>
+      </a>`).join('')}
+      <a class="panel add" href="#add"><div><b style="color:var(--fg)">Add a product</b><br>Paste its link</div></a>
+    </div>`;
+  },
+  add() {
+    return `<header><h1>Add a product</h1><p class="sub">Paste the live app's address. Post maker opens it like a new user would, learns what it does and takes screenshots of the screens worth showing. About two minutes.</p></header>
+    <form class="panel form" id="addform">
+      <label for="url">Link to the app<input id="url" value="https://passalong.dev" inputmode="url" autocomplete="off"></label>
+      <div class="two">
+        <label for="demo-user">Demo login <small>optional</small><input id="demo-user" placeholder="demo@yourapp.com" autocomplete="off"></label>
+        <label for="demo-pass">Demo password <small>optional</small><input id="demo-pass" type="password" placeholder="Use a demo account" autocomplete="off"></label>
+      </div>
+      <p class="sub" style="margin:0">With a demo login it can show the real product: dashboards and screens behind sign-in. Use a demo account with example data, never a real one.</p>
+      <label for="who">Who is it for? <small>optional, it will guess from the site</small><input id="who" placeholder="Small teams running AI coding agents"></label>
+      <div class="row"><button type="submit">Read the product</button><span class="sub" style="margin:0">Developer? <a href="#add" style="color:var(--accent)">Add from a repo instead</a></span></div>
+    </form>
+    <section class="panel" id="progress" hidden>
+      <h2 style="margin-bottom:14px">Reading passalong.dev</h2>
+      <ol class="steps" id="steps"></ol>
+      <div class="row" style="margin-top:16px" id="progress-done" hidden><a class="btn" href="#memory">Review what it learned</a><a class="btn ghost" href="#today">Skip to today's posts</a></div>
+    </section>`;
+  },
+  memory() {
+    const shots = [
+      ['wide-16x9-light.png', 'Landing, light', true], ['wide-16x9-dark.png', 'Landing, dark', true],
+      ['portrait-4x5-light.png', 'Incoming cards', true], ['story-9x16-dark.png', 'Work board', true],
+      ['shot-work-list.png', 'Work list', true], ['shot-sorted.png', 'Email sorted', true], ['shot-agent-asks.png', 'Agent asks', true], ['shot-project-docs.png', 'Project documents', false],
+      [null, 'Hub board (needs demo login)', false], [null, 'Hand-in with evidence (needs demo login)', false],
+    ];
+    return `<header class="row between"><div><h1>What it knows about Passalong</h1><p class="sub">Learned from passalong.dev on 18 November. Anyone on the team can correct it, and corrections are used in every post after.</p></div><a class="btn" href="#today">See today's posts</a></header>
+    <div class="mem">
+      <section class="panel" style="display:grid;gap:10px">
+        <h2>What it does</h2>
+        <div class="editable" contenteditable="true">Sorts everything a team gets (emails, bug reports, alerts, screenshots) to the right person or AI agent as it arrives, and follows it until it is done with evidence a person can check.</div>
+        <h2>Who it is for</h2>
+        <div class="editable" contenteditable="true">Leads of small teams, developers running AI coding agents, and support or marketing people who never open a terminal.</div>
+        <h2>Brand</h2>
+        <div class="row"><span class="swatch" style="width:40px;height:24px;background:#1b1916"></span><span class="swatch" style="width:40px;height:24px;background:#d24a22"></span><span class="swatch" style="width:40px;height:24px;background:#f3efe9;box-shadow:0 0 0 1px var(--line)"></span><span class="count">Inter + Instrument Serif italic, taken from the site</span></div>
+      </section>
+      <section class="panel" style="display:grid;gap:10px">
+        <h2>Voice rules</h2>
+        <ul class="rules">
+          <li><span class="pill good">Learned</span>Plain, exact, calm. Says what it does, not how it feels.</li>
+          <li><span class="pill good">Learned</span>British spelling. Sentence case.</li>
+          <li><span class="pill">Team</span>Name only Claude Code, Codex, ChatGPT and Claude. <span class="count">added by you</span></li>
+          <li><span class="pill">Team</span>Never state a price. <span class="count">added by Ada</span></li>
+          <li><span class="pill bad">Never</span>seamless, powerful, revolutionise, supercharge, exclamation marks</li>
+        </ul>
+        <form class="row" id="ruleform"><input id="newrule" placeholder="Add a rule, e.g. say 'work', never 'ticket'" style="flex:1;min-width:200px"><button class="ghost" type="submit">Add rule</button></form>
+      </section>
+    </div>
+    <section class="panel" style="display:grid;gap:12px">
+      <div class="row between"><h2>Screens it took</h2><span class="count">7 used in posts · 2 need a demo login</span></div>
+      <div class="shots">${shots.map(([src, name, on], i) => `<div class="shot">
+        <div class="img ${src ? '' : 'blank'}">${src ? `<img src="${src}" alt="${name}">` : 'Sign-in needed'}</div>
+        <label for="shot-${i}"><input type="checkbox" id="shot-${i}" ${on ? 'checked' : ''} ${src ? '' : 'disabled'}>${name}</label></div>`).join('')}</div>
+    </section>
+    <section class="panel" style="display:grid;gap:10px">
+      <h2>Angles already used</h2>
+      <p class="sub" style="margin:0">So it doesn't repeat itself: feature spotlight (one agent per job) twice, problem and fix (six places) once, launch post once. Next up: comparisons, tips, customer-style stories.</p>
+    </section>`;
+  },
+  posted() {
+    return `<header><h1>Posted</h1><p class="sub">What the team put out, where and by whom. Post maker uses this to avoid repeating an angle on the same platform within 30 days.</p></header>
+    <div class="panel table-wrap"><table>
+      <thead><tr><th>When</th><th>Product</th><th>Angle</th><th>Where</th><th>Who</th></tr></thead>
+      <tbody>${POSTED.map(r => `<tr><td class="num">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join('')}</tbody>
+    </table></div>`;
+  },
+};
+
+const cropStyle = k => { const c = CROPS[k]; return `background:${c.bg} url(${c.img}) center/contain no-repeat`; };
+const LOGO = '<span class="b-logo"><b>P</b>Passalong</span>';
+
+function slideHTML(s) {
+  if (s.kind === 'cover') return `<div class="slide s-cover">${LOGO}<p class="s-hl">${s.text}</p><p class="s-sub">${s.sub}</p><span class="s-swipe">Swipe</span></div>`;
+  if (s.kind === 'cta') return `<div class="slide s-cover">${LOGO}<p class="s-hl">${s.text}</p><p class="s-url">${s.sub}</p></div>`;
+  if (s.kind === 'text') return `<div class="slide s-text"><span class="s-step">${s.step}</span><p class="s-hl s-small">${s.text}</p>${LOGO}</div>`;
+  return `<div class="slide s-shot"><span class="s-step">${s.step}</span><p class="s-cap">${s.text}</p><div class="s-crop" style="${cropStyle(s.crop)}"></div></div>`;
+}
+function frameHTML(f) {
+  const body = f.crop ? `<div class="s-crop" style="${cropStyle(f.crop)}"></div>`
+    : f.kind === 'code' ? `<pre class="f-code">$ pnpm test export
+✓ 14 passed (1.2s)
+$ curl -s /export | head -1
+id,total,date</pre>`
+    : `<p class="s-hl s-small">${f.text}</p>`;
+  return `<div class="frame">${body}<p class="f-cap"><b>${f.time}</b> ${f.text}</p></div>`;
+}
+
+function media(p, platform) {
+  const i = state.slide[p.id] || 0;
+  if (p.format === 'carousel') {
+    if (platform === 'X') return `<div class="m-grid">${p.slides.slice(0, 4).map(slideHTML).join('')}</div>`;
+    return `<div class="m-carousel"><div class="track" style="transform:translateX(-${i * 100}%)">${p.slides.map(slideHTML).join('')}</div>
+      <button class="nav prev" data-act="slide" data-id="${p.id}" data-d="-1" aria-label="Previous slide" ${i === 0 ? 'hidden' : ''}>&#8249;</button>
+      <button class="nav next" data-act="slide" data-id="${p.id}" data-d="1" aria-label="Next slide" ${i === p.slides.length - 1 ? 'hidden' : ''}>&#8250;</button>
+      ${platform === 'LinkedIn' ? `<span class="counter">${i + 1} / ${p.slides.length}</span>` : `<div class="dots">${p.slides.map((_, j) => `<i class="${j === i ? 'on' : ''}"></i>`).join('')}</div>`}</div>`;
+  }
+  if (p.format === 'clip') return `<div class="m-clip ${platform === 'Instagram' ? 'tall' : ''} ${state.paused[p.id] ? 'paused' : ''}">${p.frames.map((f, j) => `<div class="clip-f" style="--n:${p.frames.length};--j:${j}">${frameHTML(f)}</div>`).join('')}
+    <button class="play" data-act="play" data-id="${p.id}">${state.paused[p.id] ? 'Play' : 'Pause'}</button><span class="dur">0:12</span><span class="mute">Captions on</span></div>`;
+  return `<div class="m-image"><p class="i-cap">${p.caption}</p><div class="s-crop" style="${cropStyle(p.crop)}"></div>${LOGO}</div>`;
+}
+
+function feed(p, platform) {
+  const text = p.copy[platform];
+  const fold = FOLD[platform], open = state.open[p.id + platform];
+  const shown = fold && !open && text.length > fold ? esc(text.slice(0, fold).replace(/\s+\S*$/, '')) + `<button class="more" data-act="more-text" data-k="${p.id + platform}">…${platform === 'LinkedIn' ? 'see more' : 'more'}</button>` : esc(text);
+  const av = '<span class="av">P</span>';
+  if (platform === 'X') return `<div class="feed f-x"><div class="f-row">${av}<div class="f-body"><div class="f-name"><b>Passalong</b> <span>@passalongdev · now</span></div><p class="f-text">${shown}</p>${media(p, platform)}<div class="f-actions"><span>Reply</span><span>Repost</span><span>Like</span><span>Views</span></div></div></div></div>`;
+  if (platform === 'LinkedIn') return `<div class="feed f-li"><div class="f-row">${av}<div><b>Passalong</b><div class="f-meta">1,204 followers<br>Now · Public</div></div></div><p class="f-text">${shown}</p>${media(p, platform)}<div class="f-actions"><span>Like</span><span>Comment</span><span>Repost</span><span>Send</span></div></div>`;
+  return `<div class="feed f-ig"><div class="f-row">${av}<b>passalong.dev</b></div>${media(p, platform)}<div class="f-actions"><span>Like</span><span>Comment</span><span>Share</span><span style="margin-left:auto">Save</span></div><p class="f-text"><b>passalong.dev</b> ${shown}</p></div>`;
+}
+
+function statusPill(p) {
+  if (p.posted) return `<span class="pill good">Posted by ${p.posted.who} on ${p.posted.where}</span>`;
+  if (p.status === 'approved') return `<span class="pill good">Approved by ${p.approvedBy}</span>`;
+  return '<span class="pill warn">Draft · needs approval</span>';
+}
+
+views.today = function () {
+  const ready = POSTS.filter(p => !p.posted).length;
+  return `<header class="row between">
+      <div><h1>Today for Passalong</h1><p class="sub">Wednesday 18 November. ${ready} posts ready, each shown the way it will look in the feed. 2 weaker ones were dropped by the quality check.</p></div>
+      <button class="ghost" data-act="more">3 more ideas</button>
+    </header>
+    <div class="chips" role="group" aria-label="Product">
+      ${PRODUCTS.map((p, i) => `<button class="chip" aria-pressed="${i === 0}" data-act="product" data-name="${p.name}">${p.name}</button>`).join('')}
+    </div>
+    ${POSTS.map(views.post).join('')}
+    <section class="panel quality">
+      <h2>Dropped by the quality check</h2>
+      <ul class="dropped">${DROPPED.map(([t, why]) => `<li><s>${esc(t)}</s><span>${esc(why)}</span></li>`).join('')}</ul>
+    </section>`;
+};
+
+views.post = function (p) {
+  const platforms = Object.keys(p.copy), platform = state.tab[p.id] || platforms[0];
+  const text = p.copy[platform], n = text.length, lim = LIMITS[platform], fold = FOLD[platform];
+  return `<article class="panel post" id="post-${p.id}">
+    <div class="preview">
+      <div class="tabs" role="tablist" aria-label="Preview on">${platforms.map(t => `<button class="tab" role="tab" aria-selected="${t === platform}" data-act="tab" data-id="${p.id}" data-tab="${t}">${t}</button>`).join('')}</div>
+      ${feed(p, platform)}
+    </div>
+    <aside class="side-panel">
+      <div class="row">${statusPill(p)}<span class="pill">${FORMAT_LABEL[p.format]}</span></div>
+      <h3>${esc(p.title)}</h3>
+      <p class="why"><b>${p.pattern}.</b> ${p.why}</p>
+      ${p.flag ? `<p class="flag">${p.flag}</p>` : ''}
+      <label for="text-${p.id}" class="edit-label">${platform} text <span class="count ${n > lim ? 'over' : ''}">${n} / ${lim.toLocaleString()}${fold ? ` · first ${fold} show before "more"` : ''}</span></label>
+      <textarea id="text-${p.id}" data-act="edit" data-id="${p.id}" data-tab="${platform}" rows="7">${esc(text)}</textarea>
+      <div class="chips"><button class="chip" data-act="rewrite">Shorter</button><button class="chip" data-act="rewrite">Stronger first line</button><button class="chip" data-act="rewrite">More technical</button></div>
+      <div class="row">
+        <button data-act="copy" data-id="${p.id}">Copy text</button>
+        <button class="ghost" data-act="copymedia" data-id="${p.id}">${p.format === 'carousel' ? 'Copy slides (PDF)' : p.format === 'clip' ? 'Copy clip (MP4)' : 'Copy image'}</button>
+      </div>
+      <div class="row">
+        ${p.posted ? `<button class="ok" data-act="unpost" data-id="${p.id}">Posted</button>`
+          : p.status === 'approved' ? `<span class="mark"><button class="ghost" data-act="mark" data-id="${p.id}">Mark posted</button></span>`
+          : `<button class="ghost" data-act="approve" data-id="${p.id}">Approve</button><button class="ghost" data-act="assign">Ask Ada to review</button>`}
+      </div>
+    </aside>
+  </article>`;
+};
+
+function redrawPost(id) { const el = document.getElementById('post-' + id); el.outerHTML = views.post(POSTS.find(p => p.id === id)); }
+const findPost = id => POSTS.find(p => p.id === id);
+
+document.addEventListener('input', e => {
+  const t = e.target; if (t.dataset.act !== 'edit') return;
+  const p = findPost(t.dataset.id); p.copy[t.dataset.tab] = t.value;
+  const art = document.getElementById('post-' + p.id);
+  art.querySelector('.feed').outerHTML = feed(p, t.dataset.tab);
+  const lim = LIMITS[t.dataset.tab], fold = FOLD[t.dataset.tab];
+  art.querySelector('.edit-label .count').textContent = `${t.value.length} / ${lim.toLocaleString()}${fold ? ` · first ${fold} show before "more"` : ''}`;
+});
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.dataset.act === 'edit') return;
+  const p = b.dataset.id && findPost(b.dataset.id);
+  switch (b.dataset.act) {
+    case 'tab': state.tab[p.id] = b.dataset.tab; redrawPost(p.id); break;
+    case 'slide': state.slide[p.id] = Math.max(0, Math.min(p.slides.length - 1, (state.slide[p.id] || 0) + +b.dataset.d)); redrawPost(p.id); break;
+    case 'play': state.paused[p.id] = !state.paused[p.id]; redrawPost(p.id); break;
+    case 'more-text': state.open[b.dataset.k] = true; { const id = b.dataset.k.replace(/(X|LinkedIn|Instagram)$/, ''); redrawPost(id); } break;
+    case 'copy': copy(p.copy[state.tab[p.id] || Object.keys(p.copy)[0]]); break;
+    case 'copymedia': toast(p.format === 'carousel' ? 'In the real app: the 5 slides as a PDF, ready for LinkedIn' : p.format === 'clip' ? 'In the real app: a 12-second MP4 at the size this platform wants' : 'In the real app: the image at this platform’s size'); break;
+    case 'rewrite': toast('In the real app: rewrites this text and keeps the voice rules'); break;
+    case 'assign': toast('Ada gets a note to review it'); break;
+    case 'more': toast('In the real app: 3 new ideas, none used in the last 30 days'); break;
+    case 'product': if (b.dataset.name !== 'Passalong') toast('Only Passalong is filled in for this mock'); break;
+    case 'approve': p.status = 'approved'; p.approvedBy = 'you'; redrawPost(p.id); toast('Approved. Anyone on the team can post it now.'); break;
+    case 'unpost': delete p.posted; redrawPost(p.id); break;
+    case 'mark': {
+      const wrap = b.parentElement; if (wrap.querySelector('.popover')) { wrap.querySelector('.popover').remove(); break; }
+      const cur = state.tab[p.id] || Object.keys(p.copy)[0];
+      wrap.insertAdjacentHTML('beforeend', `<div class="popover"><b>Where did you post it?</b>
+        <div class="chips">${Object.keys(p.copy).map(t => `<button class="chip" aria-pressed="${t === cur}" data-act="where" data-id="${p.id}" data-where="${t}">${t}</button>`).join('')}</div>
+        <span class="count">Posted by you · visible to the team</span></div>`);
+      break;
+    }
+    case 'where': p.posted = { who: 'you', where: b.dataset.where }; POSTED.unshift(['Just now', 'Passalong', p.pattern, b.dataset.where, 'You']); redrawPost(p.id); toast('Marked posted. The team can see it.'); break;
+  }
+});
+
+function render() {
+  const route = (location.hash || '#today').slice(1);
+  const view = views[route] && route !== 'post' ? route : 'today';
+  $('#view').innerHTML = views[view]();
+  document.querySelectorAll('nav.side a').forEach(a => a.getAttribute('href') === '#' + view ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+}
+
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  if (e.target.id === 'ruleform') {
+    const v = $('#newrule').value.trim(); if (!v) return;
+    e.target.previousElementSibling.insertAdjacentHTML('beforeend', `<li><span class="pill">Team</span>${esc(v)} <span class="count">added by you</span></li>`);
+    $('#newrule').value = ''; toast('Rule added. Used from the next post on.');
+  }
+  if (e.target.id === 'addform') {
+    e.target.hidden = true; $('#progress').hidden = false;
+    const steps = ['Opened passalong.dev', 'Read 14 pages: landing, docs, FAQ, learn guides', 'No demo login given, so it stayed on public pages', 'Took 6 screenshots, kept the 4 best', 'Learned the voice from the site’s own copy', 'Took the colours and fonts from the site', 'Wrote the first 3 posts'];
+    const ol = $('#steps'); ol.innerHTML = steps.map(s => `<li>${s}</li>`).join('');
+    const lis = [...ol.children]; let k = 0;
+    const tick = () => { lis.forEach((li, j) => { li.className = j < k ? 'done' : j === k ? 'now' : ''; }); if (k++ < lis.length) setTimeout(tick, 550); else $('#progress-done').hidden = false; };
+    tick();
+  }
+});
+
+addEventListener('hashchange', render);
+render();
+</script>

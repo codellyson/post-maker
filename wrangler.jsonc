@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "post-maker",
+  "main": "./.output/server/index.mjs",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "binding": "ASSETS", "directory": "./.output/public" },
+  // database_id is filled in when the owner creates the database (wrangler d1 create post-maker).
+  "d1_databases": [{ "binding": "DB", "database_name": "post-maker", "database_id": "2a9da06c-c377-4a5c-bb9d-0b2c8faf191e", "migrations_dir": "migrations" }],
+  // Cut-out screens and rendered post images.
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "post-maker-media" }],
+  // Opens product sites, cuts out screens, renders post images and PDFs. Remote in dev: there is no local browser.
+  "browser": { "binding": "BROWSER", "remote": true },
+  // Slow work (reading a site, writing posts, rendering) runs here so no request waits on it.
+  "queues": {
+    "producers": [{ "binding": "JOBS", "queue": "post-maker-jobs" }],
+    "consumers": [{ "queue": "post-maker-jobs", "max_batch_size": 1, "max_retries": 2 }]
+  },
+  // Writes today's posts for every product each morning (06:00 UTC).
+  "triggers": { "crons": ["0 6 * * *"] },
+  "send_email": [{ "name": "EMAIL" }],
+  "ratelimits": [{ "name": "SIGNIN_LIMIT", "namespace_id": "4711", "simple": { "limit": 5, "period": 60 } }],
+  "vars": { "MAIL_FROM": "signin@postmaker.kreativekorna.com", "AI_PROVIDER": "anthropic", "AI_MODEL": "claude-opus-5-5" },
+  "observability": { "enabled": true }
+  // Secrets (wrangler secret put): ANTHROPIC_API_KEY, CRED_KEY (32 random bytes, base64; encrypts demo logins).
+  // Local only (.dev.vars): DEV_SHOW_CODE=1 shows sign-in codes on localhost.
+}

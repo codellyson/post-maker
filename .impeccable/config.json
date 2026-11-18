@@ -1,0 +1,80 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "inter",
+        "files": [
+          "mock/index.html"
+        ],
+        "createdAt": "2026-11-18T04:15:36.725Z",
+        "reason": "Claude: Passalong's brand fonts, used only in the customer post visuals (.pa); DESIGN.md 'Not Our Brand' rule puts them outside the system"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "instrument serif",
+        "files": [
+          "mock/index.html"
+        ],
+        "createdAt": "2026-11-18T04:15:36.739Z",
+        "reason": "Claude: Passalong's brand fonts, used only in the customer post visuals (.pa); DESIGN.md 'Not Our Brand' rule puts them outside the system"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/assigned.html"
+        ],
+        "createdAt": "2026-11-18T04:15:36.757Z",
+        "reason": "Claude: spent direction-round sketch written before DESIGN.md existed; not shipped"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/model-pick.html"
+        ],
+        "createdAt": "2026-11-18T04:15:36.771Z",
+        "reason": "Claude: spent direction-round sketch written before DESIGN.md existed; not shipped"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-metro.html"
+        ],
+        "createdAt": "2026-11-18T04:15:36.785Z",
+        "reason": "Claude: spent direction-round sketch written before DESIGN.md existed; not shipped"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/challenger-streaming.html"
+        ],
+        "createdAt": "2026-11-18T04:15:36.802Z",
+        "reason": "Claude: spent direction-round sketch written before DESIGN.md existed; not shipped"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/canon.html"
+        ],
+        "createdAt": "2026-11-18T04:15:36.817Z",
+        "reason": "Claude: spent direction-round sketch written before DESIGN.md existed; not shipped"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          "app/utils/brand.ts"
+        ],
+        "createdAt": "2026-11-18T04:35:49.422Z",
+        "reason": "Claude: post visuals use each customer product's own font, read from their site; DESIGN.md 'Not Our Brand' rule"
+      }
+    ]
+  }
+}

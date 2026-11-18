@@ -1,0 +1,13 @@
+{
+  "name": "post-maker-engine",
+  "private": true,
+  "type": "module",
+  "description": "Runs on the team's Mac: checks a product's local repo, runs the app, reads it, and sends screens and commits to Post maker.",
+  "scripts": {
+    "start": "node server.ts"
+  },
+  "engines": { "node": ">=22.18" },
+  "dependencies": {
+    "playwright-core": "1.49.1"
+  }
+}

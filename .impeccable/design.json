@@ -1,0 +1,406 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T05:30:00Z",
+  "title": "Design System: Post maker",
+  "extensions": {
+    "colorMeta": {
+      "cyan": {
+        "role": "primary",
+        "displayName": "Live Cyan",
+        "canonical": "oklch(73.8% 0.134 219)",
+        "tonalRamp": [
+          "oklch(15% 0.120 219)",
+          "oklch(25% 0.134 219)",
+          "oklch(35% 0.134 219)",
+          "oklch(45% 0.134 219)",
+          "oklch(55% 0.134 219)",
+          "oklch(68% 0.134 219)",
+          "oklch(82% 0.134 219)",
+          "oklch(95% 0.120 219)"
+        ]
+      },
+      "magenta": {
+        "role": "secondary",
+        "displayName": "Hot Magenta",
+        "canonical": "oklch(60.0% 0.244 359)",
+        "tonalRamp": [
+          "oklch(15% 0.120 359)",
+          "oklch(25% 0.244 359)",
+          "oklch(35% 0.244 359)",
+          "oklch(45% 0.244 359)",
+          "oklch(55% 0.244 359)",
+          "oklch(68% 0.244 359)",
+          "oklch(82% 0.244 359)",
+          "oklch(95% 0.120 359)"
+        ]
+      },
+      "lime": {
+        "role": "secondary",
+        "displayName": "Signal Lime",
+        "canonical": "oklch(84.8% 0.221 128)",
+        "tonalRamp": [
+          "oklch(15% 0.120 128)",
+          "oklch(25% 0.221 128)",
+          "oklch(35% 0.221 128)",
+          "oklch(45% 0.221 128)",
+          "oklch(55% 0.221 128)",
+          "oklch(68% 0.221 128)",
+          "oklch(82% 0.221 128)",
+          "oklch(95% 0.120 128)"
+        ]
+      },
+      "orange": {
+        "role": "secondary",
+        "displayName": "Warm Orange",
+        "canonical": "oklch(74.8% 0.163 68)",
+        "tonalRamp": [
+          "oklch(15% 0.120 68)",
+          "oklch(25% 0.163 68)",
+          "oklch(35% 0.163 68)",
+          "oklch(45% 0.163 68)",
+          "oklch(55% 0.163 68)",
+          "oklch(68% 0.163 68)",
+          "oklch(82% 0.163 68)",
+          "oklch(95% 0.120 68)"
+        ]
+      },
+      "purple": {
+        "role": "tertiary",
+        "displayName": "Bright Purple",
+        "canonical": "oklch(63.1% 0.235 300)",
+        "tonalRamp": [
+          "oklch(15% 0.120 300)",
+          "oklch(25% 0.235 300)",
+          "oklch(35% 0.235 300)",
+          "oklch(45% 0.235 300)",
+          "oklch(55% 0.235 300)",
+          "oklch(68% 0.235 300)",
+          "oklch(82% 0.235 300)",
+          "oklch(95% 0.120 300)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Ground Black",
+        "canonical": "oklch(0.0% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(68% 0.000 0)",
+          "oklch(82% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink White",
+        "canonical": "oklch(100.0% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(68% 0.000 0)",
+          "oklch(82% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Soft Grey",
+        "canonical": "oklch(78.6% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(68% 0.000 0)",
+          "oklch(82% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Muted Grey",
+        "canonical": "oklch(63.3% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(68% 0.000 0)",
+          "oklch(82% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "ink-dim": {
+        "role": "neutral",
+        "displayName": "Dim Grey",
+        "canonical": "oklch(46.8% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(68% 0.000 0)",
+          "oklch(82% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "outline-quiet": {
+        "role": "neutral",
+        "displayName": "Quiet Outline",
+        "canonical": "oklch(40.9% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(68% 0.000 0)",
+          "oklch(82% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Rule Grey",
+        "canonical": "oklch(28.5% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(68% 0.000 0)",
+          "oklch(82% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "raise": {
+        "role": "neutral",
+        "displayName": "Raise",
+        "canonical": "oklch(17.8% 0.000 0)",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(25% 0.000 0)",
+          "oklch(35% 0.000 0)",
+          "oklch(45% 0.000 0)",
+          "oklch(55% 0.000 0)",
+          "oklch(68% 0.000 0)",
+          "oklch(82% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Pivot header only: one product name, cropped at the right edge; 68px on phones."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Wide best tile title; product tiles at 40px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "The open post's title."
+      },
+      "section": {
+        "displayName": "Section",
+        "purpose": "Cyan section headings with a cyan rule."
+      },
+      "body-lg": {
+        "displayName": "Body large",
+        "purpose": "Editable knowledge text and setup steps."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Block buttons; 16px on small buttons."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase status pills only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "crop-lift",
+        "value": "-8px -8px 24px rgba(0,0,0,.22)",
+        "purpose": "Only under a screenshot crop inside a tile. Chrome is otherwise flat."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-swift-out",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Pivot slide (0.5s), tiles rising in from 28px right (0.55s, 60ms stagger)."
+      },
+      {
+        "name": "tile-flip",
+        "value": "9s cubic-bezier(.65, 0, .35, 1) infinite",
+        "purpose": "Live tile flip on the X axis, staggered per tile."
+      },
+      {
+        "name": "hover",
+        "value": ".15s",
+        "purpose": "Nav square background and outline changes."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: no-preference",
+        "purpose": "Every animation is gated on it."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack-open-post",
+        "value": "1180px"
+      },
+      {
+        "name": "mobile",
+        "value": "820px"
+      }
+    ],
+    "outOfSystem": {
+      "rule": "The Not Our Brand Rule",
+      "postVisuals": "Post visuals (.pa and .slide classes) render in the customer product's brand, e.g. Passalong's brown radial ground, Inter, Instrument Serif italic, orange accent. Not Post maker tokens.",
+      "feedChrome": "Feed frames (.feed) copy the light X, LinkedIn and Instagram chrome with system fonts. Not Post maker tokens; only the cyan focus ring on editable feed text is Post maker's."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one cyan block per view: the copy action.",
+      "html": "<button class=\"ds-btn\">copy linkedin text <svg viewBox=\"0 0 10 10\" width=\"14\" height=\"14\" fill=\"currentColor\"><path d=\"M2 1l7 4-7 4z\"/></svg></button>",
+      "css": ":host{--ground:#000;--ink:#fff;--ink-2:#b9b9b9;--ink-3:#8a8a8a;--line:#2a2a2a;--raise:#111;--cyan:#00bde3;--magenta:#e6007e;--lime:#a4e600;--orange:#f09609;--purple:#a259ff;--live:var(--cyan);--ui:'Noto Sans Display','Segoe UI',system-ui,sans-serif} .ds-btn{display:inline-flex;align-items:center;justify-content:space-between;gap:28px;min-height:52px;padding:0 18px;font:300 20px var(--ui);background:var(--live);color:#000;border:1.5px solid var(--live);border-radius:0;cursor:pointer} .ds-btn svg{width:14px;height:14px} .ds-btn:focus-visible{outline:2px solid var(--live);outline-offset:2px} .ds-btn:active{background:#00a6c8;border-color:#00a6c8}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary actions on black; white outline that turns cyan on hover.",
+      "html": "<button class=\"ds-btn ds-ghost\">copy 5 slides <svg viewBox=\"0 0 10 10\" width=\"14\" height=\"14\" fill=\"currentColor\"><path d=\"M2 1l7 4-7 4z\"/></svg></button>",
+      "css": ":host{--ground:#000;--ink:#fff;--ink-2:#b9b9b9;--ink-3:#8a8a8a;--line:#2a2a2a;--raise:#111;--cyan:#00bde3;--magenta:#e6007e;--lime:#a4e600;--orange:#f09609;--purple:#a259ff;--live:var(--cyan);--ui:'Noto Sans Display','Segoe UI',system-ui,sans-serif} .ds-btn{display:inline-flex;align-items:center;justify-content:space-between;gap:28px;min-height:52px;padding:0 18px;font:300 20px var(--ui);background:var(--live);color:#000;border:1.5px solid var(--live);border-radius:0;cursor:pointer} .ds-btn svg{width:14px;height:14px} .ds-btn:focus-visible{outline:2px solid var(--live);outline-offset:2px} .ds-ghost{background:transparent;color:var(--ink);border-color:var(--ink)} .ds-ghost:hover{color:var(--live);border-color:var(--live)}"
+    },
+    {
+      "name": "Nav Square",
+      "kind": "nav",
+      "refersTo": "nav-square",
+      "description": "Rail navigation: square line-icon buttons, cyan fill when current.",
+      "html": "<nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\"><span class=\"sq\"><svg viewBox=\"0 0 24 24\"><path d=\"M3 11 12 4l9 7v9h-6v-6H9v6H3z\"/></svg></span>today</a><a href=\"#\"><span class=\"sq\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 12.5 9.5 18 20 6\"/></svg></span>posted</a></nav>",
+      "css": ":host{--ground:#000;--ink:#fff;--ink-2:#b9b9b9;--ink-3:#8a8a8a;--line:#2a2a2a;--raise:#111;--cyan:#00bde3;--magenta:#e6007e;--lime:#a4e600;--orange:#f09609;--purple:#a259ff;--live:var(--cyan);--ui:'Noto Sans Display','Segoe UI',system-ui,sans-serif} .ds-nav{display:grid;gap:8px;background:#000;padding:12px;font:300 17px var(--ui)} .ds-nav a{display:flex;align-items:center;gap:16px;text-decoration:none;color:var(--ink-2)} .ds-nav .sq{width:52px;height:52px;border:1.5px solid #4a4a4a;display:grid;place-items:center;transition:background .15s,border-color .15s} .ds-nav svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:square} .ds-nav a:hover{color:var(--ink)} .ds-nav a:hover .sq{border-color:var(--ink)} .ds-nav a:focus-visible{outline:2px solid var(--live);outline-offset:2px} .ds-nav a[aria-current=page]{color:var(--live)} .ds-nav a[aria-current=page] .sq{background:var(--live);border-color:var(--live);color:#000}"
+    },
+    {
+      "name": "Live Tile",
+      "kind": "card",
+      "refersTo": "tile",
+      "description": "A post as a flat colour tile with black light type and a dot patch; flips to its first line.",
+      "html": "<button class=\"ds-tile\" aria-pressed=\"true\"><span class=\"ds-dots\"></span><span class=\"h\">work arrives in six places</span><span class=\"m\">carousel · 5 slides</span></button>",
+      "css": ":host{--ground:#000;--ink:#fff;--ink-2:#b9b9b9;--ink-3:#8a8a8a;--line:#2a2a2a;--raise:#111;--cyan:#00bde3;--magenta:#e6007e;--lime:#a4e600;--orange:#f09609;--purple:#a259ff;--live:var(--cyan);--ui:'Noto Sans Display','Segoe UI',system-ui,sans-serif} .ds-tile{position:relative;width:320px;aspect-ratio:1.75;padding:18px 20px;border:0;border-radius:0;background:var(--magenta);color:#000;display:flex;flex-direction:column;justify-content:space-between;text-align:left;cursor:pointer;font-family:var(--ui);transition:transform .12s} .ds-tile .h{font:300 40px/.98 var(--ui);letter-spacing:-.03em;max-width:9ch} .ds-tile .m{font:400 14px var(--ui)} .ds-dots{position:absolute;right:16px;top:16px;width:64px;height:40px;background:radial-gradient(circle,rgba(0,0,0,.28) 1.1px,transparent 1.5px) 0 0/7px 7px} .ds-tile[aria-pressed=true]::after{content:'';position:absolute;inset:-6px;border:2px solid var(--ink);pointer-events:none} .ds-tile:focus-visible{outline:2px solid var(--live);outline-offset:10px} .ds-tile:active{transform:perspective(600px) rotateX(4deg) rotateY(-4deg) scale(.98)}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Square black field, large light text, cyan outline on focus.",
+      "html": "<label class=\"ds-field\">product link<input placeholder=\"passalong.dev\"></label>",
+      "css": ":host{--ground:#000;--ink:#fff;--ink-2:#b9b9b9;--ink-3:#8a8a8a;--line:#2a2a2a;--raise:#111;--cyan:#00bde3;--magenta:#e6007e;--lime:#a4e600;--orange:#f09609;--purple:#a259ff;--live:var(--cyan);--ui:'Noto Sans Display','Segoe UI',system-ui,sans-serif} .ds-field{display:grid;gap:8px;font:300 17px var(--ui);color:var(--ink);background:#000;padding:12px} .ds-field input{font:300 26px var(--ui);color:var(--ink);background:#000;border:2px solid var(--ink-2);padding:12px 14px;border-radius:0} .ds-field input::placeholder{color:#5a5a5a} .ds-field input:focus{border-color:var(--live);outline:0}"
+    },
+    {
+      "name": "Status Pills",
+      "kind": "chip",
+      "refersTo": "pill-draft",
+      "description": "Small uppercase status on flat fills: orange draft, lime approved, grey format.",
+      "html": "<span class=\"ds-pill d\">draft</span> <span class=\"ds-pill o\">approved</span> <span class=\"ds-pill f\">carousel</span>",
+      "css": ":host{--ground:#000;--ink:#fff;--ink-2:#b9b9b9;--ink-3:#8a8a8a;--line:#2a2a2a;--raise:#111;--cyan:#00bde3;--magenta:#e6007e;--lime:#a4e600;--orange:#f09609;--purple:#a259ff;--live:var(--cyan);--ui:'Noto Sans Display','Segoe UI',system-ui,sans-serif} .ds-pill{font:400 12px/1 var(--ui);letter-spacing:.05em;text-transform:uppercase;padding:5px 8px;color:#000;display:inline-block} .ds-pill.d{background:var(--orange)} .ds-pill.o{background:var(--lime)} .ds-pill.f{background:#2a2a2a;color:var(--ink)}"
+    },
+    {
+      "name": "Pivot Header",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "The current product name giant and cropped, the next products dim after it.",
+      "html": "<div class=\"ds-pivot\"><span class=\"on\">passalong</span><span>squeeze</span><span>fillie</span></div>",
+      "css": ":host{--ground:#000;--ink:#fff;--ink-2:#b9b9b9;--ink-3:#8a8a8a;--line:#2a2a2a;--raise:#111;--cyan:#00bde3;--magenta:#e6007e;--lime:#a4e600;--orange:#f09609;--purple:#a259ff;--live:var(--cyan);--ui:'Noto Sans Display','Segoe UI',system-ui,sans-serif} .ds-pivot{background:#000;white-space:nowrap;overflow:hidden;font:200 120px/1.08 var(--ui);letter-spacing:-.045em;display:flex;gap:.28em;color:#5e5e5e} .ds-pivot .on{color:var(--ink)}"
+    },
+    {
+      "name": "Section Heading",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Cyan light heading with a cyan rule under it.",
+      "html": "<h2 class=\"ds-sect\">voice rules</h2>",
+      "css": ":host{--ground:#000;--ink:#fff;--ink-2:#b9b9b9;--ink-3:#8a8a8a;--line:#2a2a2a;--raise:#111;--cyan:#00bde3;--magenta:#e6007e;--lime:#a4e600;--orange:#f09609;--purple:#a259ff;--live:var(--cyan);--ui:'Noto Sans Display','Segoe UI',system-ui,sans-serif} .ds-sect{margin:0;font:300 30px/1 var(--ui);color:var(--live);border-bottom:1.5px solid var(--live);padding:12px 0;background:#000}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Live Tile Board",
+    "overview": "Post maker is a black board of flat colour fields and huge light lowercase type. The product name sits across the top so large it crops at the right edge, with the next product peeking in; today's posts sit under it as square tiles that slowly flip between the post's visual and its first line. Everything else is quiet: white and grey text on black, thin square outlines, and one cyan that marks whatever is live, chosen or next.\n\nThe density is low on purpose. A visit lasts five minutes, so the screen leads with very few, very large things: one name, a handful of tiles, one cyan button. Type does the structural work that cards, panels and shadows do elsewhere. Colour is used at full strength or not at all.\n\nThe system has two outer borders it must respect. The post visuals inside the feed previews belong to the customer's product and are drawn in that product's own brand (for Passalong: a dark brown radial ground, Inter, Instrument Serif italic, an orange accent). The feed frames around them copy the light X, LinkedIn and Instagram chrome. Neither is Post maker's look, and none of their values are tokens here.",
+    "keyCharacteristics": [
+      "Pure black ground, white ink, five flat fills (cyan, magenta, lime, orange, purple).",
+      "One typeface, Noto Sans Display, in light weights and lowercase, giant at the top.",
+      "Square everything: no rounded corners anywhere in the app chrome.",
+      "Flat colour tiles with black type, a dot-matrix patch and a slow flip.",
+      "Cyan is the one colour that means \"live\": the current page, the main action, focus, section headings."
+    ],
+    "rules": [
+      {
+        "name": "The One Live Colour Rule",
+        "body": "Cyan is the only colour that marks state: current, focused, primary, in progress. Other hues may mark meaning (lime done, orange draft, magenta over limit) but never \"you are here\".",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat Fill Rule",
+        "body": "Fills are flat at full strength: no gradients, no tints, no bevels, no outlines around a coloured field. Type on a fill is always black.",
+        "section": "colors"
+      },
+      {
+        "name": "The Not Our Brand Rule",
+        "body": "Post visuals render in the customer product's own brand, and feed frames copy the platform's light chrome. Never pull their fonts, radii, shadows or colours into the app, and never push Post maker's into them.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lowercase Voice Rule",
+        "body": "Names, headings, nav and buttons are lowercase. Uppercase is reserved for small status pills.",
+        "section": "typography"
+      },
+      {
+        "name": "The Crop Rule",
+        "body": "The pivot header is meant to run off the right edge. Do not shrink it to fit.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Chrome Rule",
+        "body": "No shadows on buttons, tiles, inputs, panels or the rail. If something needs to stand out, give it a fill or make it bigger.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep the ground pure black (#000000) and every fill flat at full strength, with black type on it.",
+      "**Do** use cyan for every \"current\", \"focused\" and \"do this next\" state, and keep one cyan block button per view.",
+      "**Do** set names, headings, nav and buttons in light lowercase Noto Sans Display.",
+      "**Do** let the pivot header crop at the right edge, with the next product showing.",
+      "**Do** keep every app shape square (0px radius).",
+      "**Do** render post visuals in the customer product's own brand, inside feed frames that copy the platform."
+    ],
+    "donts": [
+      "**Don't** add gradients, bevels or tints to a fill, or outline a coloured field.",
+      "**Don't** put shadows on chrome; the only shadow is the screenshot crop inside a tile.",
+      "**Don't** round corners in the app chrome.",
+      "**Don't** use Dim Grey or Quiet Outline for small text.",
+      "**Don't** take the Passalong post look (brown ground, Inter, Instrument Serif italic, orange accent) as Post maker's style."
+    ]
+  }
+}

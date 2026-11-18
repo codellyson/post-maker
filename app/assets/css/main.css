@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+/* DESIGN.md: pure black ground, white ink, five flat fills. Cyan owns every live, current and selected state. */
+@theme static {
+  --color-ground: #000000;
+  --color-ink: #ffffff;
+  --color-ink-2: #b9b9b9;
+  --color-ink-3: #8a8a8a;
+  --color-dim: #5a5a5a;
+  --color-rule: #2a2a2a;
+  --color-raise: #111111;
+  --color-cyan: #00bde3;
+  --color-magenta: #e6007e;
+  --color-lime: #a4e600;
+  --color-orange: #f09609;
+  --color-purple: #a259ff;
+  --font-ui: "Noto Sans Display", "Segoe UI", system-ui, sans-serif;
+  --radius-none: 0;
+}
+
+:root { color-scheme: dark; }
+html, body { background: var(--color-ground); color: var(--color-ink); }
+body { font: 300 15px/1.5 var(--font-ui); -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+::selection { background: var(--color-cyan); color: #000; }
+* { scrollbar-color: #333 #000; }
+:focus-visible { outline: 2px solid var(--color-cyan); outline-offset: 2px; }
+button { cursor: pointer; }
+
+/* The giant lowercase pivot header. Meant to run off the right edge. */
+.pivot { white-space: nowrap; overflow-x: clip; overflow-y: visible; }
+.pivot-track { display: inline-flex; align-items: baseline; gap: .28em; font: 200 clamp(68px, 11.5vw, 184px)/1.08 var(--font-ui); letter-spacing: -.045em; }
+@media (prefers-reduced-motion: no-preference) { .pivot-track { transition: transform .5s cubic-bezier(.16, 1, .3, 1); } }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 52px; padding: 0 18px; font: 300 20px var(--font-ui); background: var(--color-cyan); color: #000; border: 1.5px solid var(--color-cyan); text-decoration: none; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn-ghost { background: transparent; color: var(--color-ink); border-color: var(--color-ink); }
+.btn-ghost:hover:not(:disabled) { color: var(--color-cyan); border-color: var(--color-cyan); }
+.btn-sm { min-height: 40px; font-size: 16px; gap: 14px; }
+
+/* Square inputs; cyan when focused */
+.field { display: grid; gap: 8px; font-size: 17px; }
+.field small { color: var(--color-ink-3); font-size: 14px; }
+.input { font: 300 22px var(--font-ui); color: var(--color-ink); background: #000; border: 2px solid var(--color-ink-2); padding: 11px 14px; width: 100%; border-radius: 0; }
+.input:focus { border-color: var(--color-cyan); outline: 0; }
+.input::placeholder { color: var(--color-dim); }
+
+.pill { font: 400 12px/1 var(--font-ui); letter-spacing: .05em; text-transform: uppercase; padding: 5px 8px; color: #000; }
+
+/* Live tiles flip between the post's visual and its first line */
+@keyframes flip { 0%, 42% { transform: rotateX(0) } 50%, 92% { transform: rotateX(180deg) } 100% { transform: rotateX(360deg) } }
+@keyframes rise { from { transform: translateX(28px); } }
+@media (prefers-reduced-motion: no-preference) { .rise { animation: rise .55s cubic-bezier(.16, 1, .3, 1) both; animation-delay: calc(var(--i, 0) * 60ms); } }

@@ -1,0 +1,15 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "What the Post maker web app may do inside the desktop window: pick a repo folder, and ask about the local engine.",
+  "windows": ["main"],
+  "remote": {
+    "urls": ["http://localhost:3417/*", "https://postmaker.kreativekorna.com/*"]
+  },
+  "permissions": [
+    "core:default",
+    "allow-engine-status",
+    "allow-app-url",
+    "dialog:allow-open"
+  ]
+}

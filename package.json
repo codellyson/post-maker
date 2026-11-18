@@ -1,0 +1,35 @@
+{
+  "name": "post-maker",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "wrangler d1 migrations apply post-maker --local && nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt build && wrangler dev",
+    "test": "node --test --experimental-strip-types tests/*.test.ts",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "deploy": "nuxt build && wrangler deploy",
+    "db:migrate:remote": "wrangler d1 migrations apply post-maker --remote"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0",
+    "@cloudflare/puppeteer": "^2.0.1",
+    "fflate": "^0.8.3",
+    "html-to-image": "^1.11.13",
+    "mp4-muxer": "^5.2.2",
+    "nuxt": "^4.6.4",
+    "vue": "^3.5.45",
+    "vue-router": "^5.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261118.1",
+    "@tailwindcss/vite": "^4.3.5",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.3.14",
+    "wrangler": "4.157.0"
+  }
+}
