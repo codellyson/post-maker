@@ -33,6 +33,17 @@ async function act(path: string, method: 'POST' | 'DELETE', bodyData?: object, m
   }
 }
 const copy = copyText
+// Where the team posts by hand. X takes the text in the link; the others get it on the clipboard to paste.
+const composer = computed(() => ({
+  Facebook: 'https://www.facebook.com/',
+  X: `https://x.com/intent/post?text=${encodeURIComponent(text.value)}`,
+  LinkedIn: 'https://www.linkedin.com/feed/?shareActive=true',
+  Instagram: 'https://www.instagram.com/',
+  Reddit: 'https://www.reddit.com/submit',
+})[platform.value])
+function openPlatform() {
+  if (platform.value !== 'X') copy(text.value)
+}
 </script>
 
 <template>
@@ -45,7 +56,9 @@ const copy = copyText
     </div>
     <div class="flex flex-wrap gap-2.5">
       <button class="btn" @click="copy(text)">copy {{ platform.toLowerCase() }} text <Icon name="play" /></button>
+      <a class="btn btn-ghost no-underline" :href="composer" target="_blank" rel="noopener" @click="openPlatform">open {{ platform.toLowerCase() }} <Icon name="play" /></a>
     </div>
+    <p class="-mt-2.5 text-[13px] text-ink-3">{{ platform === 'X' ? 'Opens X with the text filled in. Add the image, then post.' : `Copies the text and opens ${platform}. Paste it, add the image, then post.` }}</p>
     <Downloads :post="post" :product="product" :platform="platform" :brand="brand" />
     <div class="flex flex-wrap items-center gap-3.5 text-[15px] text-ink-2">
       <template v-if="post.postings.length">
