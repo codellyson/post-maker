@@ -8,16 +8,17 @@ const me = useMe()
 const bare = computed(() => route.path === '/signin' || route.path.startsWith('/render'))
 const nav = [
   { to: '/', label: 'today', icon: 'today' },
+  { to: '/posts', label: 'all posts', icon: 'posts' },
   { to: '/products', label: 'products', icon: 'products' },
   { to: '/posted', label: 'posted', icon: 'posted' },
   { to: '/add', label: 'add product', icon: 'add' },
   { to: '/team', label: 'team', icon: 'team' },
 ] as const
-const active = (to: string) => (to === '/' ? route.path === '/' : route.path.startsWith(to))
+const active = (to: string) => (to === '/' ? route.path === '/' : route.path === to || route.path.startsWith(`${to}/`))
 watch(() => me.value, (m) => { if (m) loadProducts().catch(() => {}) }, { immediate: true })
 function pick(id: string) {
   current.value = id
-  if (route.path !== '/') navigateTo('/')
+  if (route.path !== '/' && route.path !== '/posts') navigateTo('/')
 }
 </script>
 

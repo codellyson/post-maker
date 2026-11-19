@@ -159,3 +159,74 @@ Recorded flows work on Passalong:
 - Inside the app, the repo folder field has a native "choose…" picker (dialog plugin; the capability allows the web app's local and live origins).
 - Quitting sends the engine SIGTERM; it stops any dev server it started before exiting.
 - Build: `cd desktop && cargo tauri build --bundles app`.
+
+## Deploy plan (deployed 19 November 2026)
+
+Target: `https://postmaker.kreativekorna.com`, one Worker named `post-maker`. Claude does nothing remote until the owner says "deploy".
+
+### What already exists on Cloudflare (checked read-only)
+
+- D1 `post-maker` (id in `wrangler.jsonc`): empty, with all 4 migrations still to apply.
+- R2 bucket `post-maker-media` and queue `post-maker-jobs`.
+- No Worker deployed yet, so no secrets are set.
+- Browser Rendering already works from this account (local dev uses it remotely).
+
+### Before deploy (local, no remote change)
+
+1. Add the custom domain to `wrangler.jsonc`: `"routes": [{ "pattern": "postmaker.kreativekorna.com", "custom_domain": true }]`, the same pattern as Smalbum and SaaQuiz.
+2. `pnpm typecheck` and `pnpm build` clean.
+3. `pnpm preview` (built Worker under `wrangler dev`) and run once end to end: sign in, read a product, write posts, download one image and one clip.
+
+Done 19 November, all passed:
+- Route added; typecheck and build clean.
+- The built Worker ran on localhost:3417. `wrangler dev` presents requests under the route's hostname, so the sign-in code went through the `EMAIL` binding the way production sends it, not the dev shortcut.
+- Reading Squeeze through the queue and remote browser worked.
+- Writing Passalong posts took about 3 minutes: 7 ideas, 5 kept. That is well inside the queue consumer's 15-minute limit.
+- Approve, mark posted and the posted log work.
+- A PNG (520 KB) and a recorded-clip MP4 (10 MB) exported in the browser.
+- "Today" follows the UTC day, so just after midnight in Lagos the header still shows yesterday. That is fine for now, since the cron also runs on UTC.
+
+### Deploy (owner says "deploy" first)
+
+1. Owner sets the secrets (Claude never types them):
+   - `wrangler secret put ANTHROPIC_API_KEY`
+   - `wrangler secret put CRED_KEY`. Use a new key, not the local one: demo logins saved locally can't be read in production and must be entered again.
+2. `pnpm db:migrate:remote` applies 0001 to 0004.
+3. `pnpm deploy`. The first deploy creates the custom domain, the cron (06:00 UTC) and the queue consumer.
+4. `DEV_SHOW_CODE` stays out of production: sign-in codes go by email only.
+
+### Deployed (19 November 2026)
+
+- The owner set `ANTHROPIC_API_KEY` and a new `CRED_KEY` (piped from `openssl rand`, never shown).
+- All 4 migrations are applied to remote D1.
+- Version `63b8d060` is live at https://postmaker.kreativekorna.com, with the cron and the queue producer and consumer.
+- The home page answers 200. The checks below are still to do.
+- Sign-in at first failed with "Server Error" because `postmaker.kreativekorna.com` was not set up for Email Sending. Each sending subdomain needs `wrangler email sending enable <subdomain>`; it does not share Smalbum's. Enabled 19 November, and the SPF and DKIM records match Smalbum's.
+
+
+Second deploy, 19 November 2026: version `1ad3a4c3`. Migration 0005 (`posts.replaced_at`) applied to the remote database first. It shipped:
+- a writer prompt built from Product Hunt day winners, and a 7-line editor scorecard
+- Facebook copy, and Instagram as an opt-in on each product
+- the "all posts" page, which keeps replaced drafts
+- the reordered product page, the looping header and the post panel beside the tiles at 1024 px and up
+- platform order: Facebook, X, Instagram, Reddit, LinkedIn
+- streamed AI calls with a 64k max_tokens limit
+
+### Check after deploy
+
+- Sign in with a real email. The code arrives from `signin@postmaker.kreativekorna.com`, the same sending setup as Smalbum. If email fails, check the domain in Email Sending before anything else.
+- Add Passalong by URL, read it, write today's posts, approve one, mark it posted.
+- Invite a second person and accept the invite.
+- `wrangler tail post-maker` while the queue runs: no errors.
+- The next morning: the cron wrote posts for every product. Every product gets AI calls each day, so watch Anthropic usage for the first week.
+
+### Desktop app after deploy
+
+- Rebuild with `PM_APP_URL=https://postmaker.kreativekorna.com cargo tauri build --bundles app`. The engine and the app's capabilities already allow that origin.
+- Connect this Mac again from the product page: the old key belongs to localhost.
+- The app is unsigned. Teammates must right-click and choose Open the first time. Signing and notarising (Apple Developer account) is a later step, needed before wider sharing.
+
+### Rollback
+
+- `wrangler rollback post-maker` returns to the last version.
+- Migrations only add tables, so the old code still runs on the new schema.

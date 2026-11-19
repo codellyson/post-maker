@@ -29,13 +29,14 @@ function anthropic(env: Env): AiProvider {
       const content: Anthropic.ContentBlockParam[] = req.parts.map(p => p.type === 'text'
         ? { type: 'text', text: p.text }
         : { type: 'image', source: { type: 'base64', media_type: p.mime ?? 'image/png', data: toB64(p.data) } })
-      const res = await client.messages.parse({
+      // Streamed so a large max_tokens does not hit the non-streaming timeout.
+      const res = await client.messages.stream({
         model,
-        max_tokens: 16000,
+        max_tokens: 64000,
         system: [{ type: 'text', text: req.system, cache_control: { type: 'ephemeral' } }],
         output_config: { effort: req.effort ?? 'high', format: zodOutputFormat(req.schema) },
         messages: [{ role: 'user', content }],
-      })
+      }).finalMessage()
       if (res.stop_reason === 'refusal') throw new Error(`The AI declined this request (${res.stop_details?.category ?? 'no reason given'}).`)
       if (res.stop_reason === 'max_tokens') throw new Error('The AI ran out of room before finishing. Try again.')
       if (!res.parsed_output) throw new Error('The AI returned something that did not match the expected shape.')

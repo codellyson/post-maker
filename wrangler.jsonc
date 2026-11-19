@@ -21,6 +21,7 @@
   "send_email": [{ "name": "EMAIL" }],
   "ratelimits": [{ "name": "SIGNIN_LIMIT", "namespace_id": "4711", "simple": { "limit": 5, "period": 60 } }],
   "vars": { "MAIL_FROM": "signin@postmaker.kreativekorna.com", "AI_PROVIDER": "anthropic", "AI_MODEL": "claude-opus-5-5" },
+  "routes": [{ "pattern": "postmaker.kreativekorna.com", "custom_domain": true }],
   "observability": { "enabled": true }
   // Secrets (wrangler secret put): ANTHROPIC_API_KEY, CRED_KEY (32 random bytes, base64; encrypts demo logins).
   // Local only (.dev.vars): DEV_SHOW_CODE=1 shows sign-in codes on localhost.

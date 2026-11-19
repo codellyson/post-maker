@@ -29,7 +29,7 @@ Competitors either turn git commits into text posts (for developers) or turn a p
 ## Operating Context
 
 - Each visit: open it, see today's best few posts (3 to 5) for one product, best first, copy, post, mark posted, leave.
-- Posts are previewed the way they look in the X, LinkedIn and Instagram feeds, including the "see more" cutoff.
+- Posts are previewed the way they look in the X, LinkedIn, Facebook and Instagram feeds, including the "see more" cutoff.
 - A product is added once by pasting its link (optionally a demo login); it learns what the product does, its voice, colours and screens.
 - Team flow: draft, approved by someone, posted by someone on a platform.
 

@@ -40,6 +40,12 @@ watch(current, () => { data.value = null; load().catch(e => toast(errorText(e)))
 // The best tile wears the product's colour; the rest step through the other fills.
 const tileFill = (i: number) => fill(FILLS[(FILLS.indexOf(product.value!.colour) + i) % FILLS.length]!)
 const post = computed(() => data.value?.posts.find(p => p.id === selected.value))
+// When the post panel sits under the tiles (narrow screens), opening a tile brings the panel into view.
+const panel = ref<HTMLElement>()
+function pick(id: string) {
+  selected.value = id
+  if (!matchMedia('(min-width: 64rem)').matches) nextTick(() => panel.value?.scrollIntoView({ behavior: 'smooth' }))
+}
 const ready = computed(() => data.value?.posts.filter(p => !p.postings.length).length ?? 0)
 const dateLabel = computed(() => data.value ? new Date(`${data.value.day}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '')
 </script>
@@ -74,10 +80,10 @@ const dateLabel = computed(() => data.value ? new Date(`${data.value.day}T12:00:
         <p class="text-[21px] text-ink-2">Nothing written for today yet. It writes every morning at 06:00 UTC, or now if you ask.</p>
         <button class="btn justify-self-start" @click="write">write today’s posts <Icon name="play" /></button>
       </div>
-      <div v-else class="grid grid-cols-1 items-start gap-9 xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)]">
+      <div v-else class="grid grid-cols-1 items-start gap-9 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)]">
         <div class="grid min-w-0 grid-cols-1">
           <div class="grid grid-cols-3 gap-2.5" role="group" aria-label="Today's posts">
-            <PostTile v-for="(p, i) in data.posts" :key="p.id" :post="p" :i="i" :wide="i === 0" :selected="p.id === selected" :fill="tileFill(i)" :product-id="product.id" @click="selected = p.id" />
+            <PostTile v-for="(p, i) in data.posts" :key="p.id" :post="p" :i="i" :wide="i === 0" :selected="p.id === selected" :fill="tileFill(i)" :product-id="product.id" @click="pick(p.id)" />
           </div>
           <button v-if="data.posts.filter(p => p.status === 'approved' || p.postings.length).length < 5" class="btn btn-ghost btn-sm mt-3 justify-self-start" @click="write">more ideas <Icon name="play" /></button>
           <section v-if="data.dropped.length" id="dropped" class="mt-10 grid content-start gap-4">
@@ -87,7 +93,7 @@ const dateLabel = computed(() => data.value ? new Date(`${data.value.day}T12:00:
             </ul>
           </section>
         </div>
-        <OpenPost v-if="post" :post="post" :product="product" @changed="load" />
+        <div ref="panel" class="scroll-mt-20 md:scroll-mt-4 lg:sticky lg:top-[18px]"><OpenPost v-if="post" :post="post" :product="product" @changed="load" /></div>
       </div>
     </template>
   </div>

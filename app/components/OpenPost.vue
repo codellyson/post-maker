@@ -5,8 +5,8 @@ const props = defineProps<{ post: Post; product: Product }>()
 const emit = defineEmits<{ changed: [] }>()
 const me = useMe()
 const platforms = computed(() => PLATFORMS.filter(p => props.post.copy[p]))
-const platform = ref<Platform>('LinkedIn')
-watch(() => props.post.id, () => { platform.value = platforms.value.includes('LinkedIn') ? 'LinkedIn' : platforms.value[0]! }, { immediate: true })
+const platform = ref<Platform>('Facebook')
+watch(() => props.post.id, () => { platform.value = platforms.value[0]! }, { immediate: true })
 const brand = computed(() => brandOf(props.product.memory))
 const text = computed(() => props.post.copy[platform.value] ?? '')
 const fold = computed(() => FOLD[platform.value])
@@ -69,6 +69,6 @@ const copy = copyText
     </div>
     <span class="text-[13px] text-ink-3 tabular-nums" :class="text.length > LIMITS[platform] && 'text-magenta'">{{ text.length }} / {{ LIMITS[platform].toLocaleString() }} characters<template v-if="fold"> · first {{ fold }} show before “more”</template></span>
     <Feed :post="post" :platform="platform" :product-id="product.id" :name="product.name" :url="product.url" :brand="brand" @edit="edit" />
-    <p class="-mt-2.5 text-[13px] text-ink-3">Click the post text to edit it. Open “see more” first on LinkedIn and Instagram.</p>
+    <p class="-mt-2.5 text-[13px] text-ink-3">Click the post text to edit it. Open “see more” first on LinkedIn, Facebook and Instagram.</p>
   </section>
 </template>

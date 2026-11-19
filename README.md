@@ -1,6 +1,6 @@
 # Post maker
 
-Post maker turns your products into today's best few social posts: carousels, short clips and close-up images in your product's own brand, with copy written for X, LinkedIn, Instagram and Reddit. Your team copies a post, downloads its visual and posts it by hand.
+Post maker turns your products into today's best few social posts: carousels, short clips and close-up images in your product's own brand, with copy written for X, LinkedIn, Facebook, Instagram and Reddit. Your team copies a post, downloads its visual and posts it by hand.
 
 **It never posts for you.** There are no platform APIs and no scheduling, on purpose.
 

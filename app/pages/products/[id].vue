@@ -118,50 +118,20 @@ const blur = (e: Event) => (e.target as HTMLElement).innerText.trim()
 
     <div class="grid items-start gap-10 lg:grid-cols-2">
       <section class="grid content-start gap-4">
-        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">what it does</h2>
-        <p class="-mx-3 px-3 py-2.5 text-[21px] leading-[1.4] outline-0 hover:bg-raise focus:shadow-[inset_0_0_0_2px_var(--color-cyan)]" contenteditable="true" @blur="e => blur(e) !== (data!.product.memory.what ?? '') && save({ what: blur(e) })">{{ data.product.memory.what || 'Not read yet.' }}</p>
-        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">who it is for</h2>
-        <p class="-mx-3 px-3 py-2.5 text-[21px] leading-[1.4] outline-0 hover:bg-raise focus:shadow-[inset_0_0_0_2px_var(--color-cyan)]" contenteditable="true" @blur="e => blur(e) !== (data!.product.memory.who ?? '') && save({ who: blur(e) })">{{ data.product.memory.who || 'Not read yet.' }}</p>
-        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">brand</h2>
-        <div class="flex flex-wrap items-center gap-1.5">
-          <i v-for="c in data.product.memory.brand?.colours ?? []" :key="c" class="size-12" :style="{ background: c }" :title="c" />
-          <span class="ml-2 text-[13px] text-ink-3">{{ (data.product.memory.brand?.fonts ?? []).join(', ') || 'no fonts read yet' }}, taken from the site</span>
-        </div>
+        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">platforms</h2>
+        <p class="m-0 text-ink-2">Every post gets Facebook, X and LinkedIn copy, and Reddit when the angle suits a community.</p>
+        <label class="flex items-center gap-3 text-[17px]">
+          <input type="checkbox" class="size-[18px] flex-none accent-cyan" :checked="!!data.product.memory.instagram" @change="e => save({ instagram: (e.target as HTMLInputElement).checked }, (e.target as HTMLInputElement).checked ? 'Instagram on. New posts get a caption.' : 'Instagram off. New posts skip it.')">
+          also write Instagram captions
+        </label>
+      </section>
+      <section class="grid content-start gap-4">
         <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">tile colour</h2>
         <div class="flex gap-2">
           <button v-for="f in FILLS" :key="f" class="size-12 aria-pressed:outline-2 aria-pressed:outline-offset-4 aria-pressed:outline-ink" :aria-pressed="data.product.colour === f" :aria-label="f" :style="{ background: fill(f) }" @click="save({ colour: f }, 'Colour changed.')" />
         </div>
       </section>
-      <section class="grid content-start gap-4">
-        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">voice rules</h2>
-        <ul class="m-0 grid list-none gap-2.5 p-0 text-[17px]">
-          <li v-for="(r, k) in rules" :key="k" class="flex items-baseline gap-3">
-            {{ r.text }}<em class="ml-auto text-[14px] whitespace-nowrap text-ink-3 not-italic">{{ r.source === 'team' ? `added by ${r.by === me?.email ? 'you' : r.by}` : 'learned' }}</em>
-            <button class="text-[14px] text-ink-3 hover:text-magenta" :aria-label="`Remove rule: ${r.text}`" @click="removeRule(k)">remove</button>
-          </li>
-        </ul>
-        <form class="flex items-center gap-2.5" @submit.prevent="addRule">
-          <label for="newrule" class="sr-only">New rule</label>
-          <input id="newrule" v-model="newRule" class="input min-w-0 flex-1 !text-[17px]" placeholder="say ‘work’, never ‘ticket’">
-          <button class="btn btn-sm">add rule</button>
-        </form>
-        <h2 class="m-0 mt-4 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">demo login</h2>
-        <p class="m-0 text-ink-2">{{ data.product.hasLogin ? 'A demo login is saved. It is never shown again.' : 'None yet. With one it can show screens behind sign-in.' }} <span v-if="data.product.need" class="text-orange">{{ data.product.need }}.</span></p>
-        <form class="grid gap-2.5 md:grid-cols-[1fr_1fr_auto]" @submit.prevent="saveLogin">
-          <input v-model="user" class="input !text-[17px]" autocomplete="off" placeholder="demo@yourapp.com" aria-label="Demo login">
-          <input v-model="pass" class="input !text-[17px]" type="password" autocomplete="new-password" placeholder="demo password" aria-label="Demo password">
-          <button class="btn btn-sm" :disabled="!user || !pass">save</button>
-        </form>
-        <div class="mt-4 flex flex-wrap gap-2.5">
-          <button class="btn btn-ghost btn-sm" :disabled="running" @click="reread">read the site again</button>
-          <button v-if="!confirmDelete" class="btn btn-ghost btn-sm" @click="confirmDelete = true">delete product</button>
-          <span v-else class="flex flex-wrap items-center gap-2.5"><span class="text-ink-2">Delete {{ data.product.name }} and all its posts? This can’t be undone.</span>
-            <button class="btn btn-sm !border-magenta !bg-magenta" @click="remove">yes, delete</button><button class="btn btn-ghost btn-sm" @click="confirmDelete = false">keep it</button></span>
-        </div>
-      </section>
     </div>
-
-    <LocalRepo :product-id="data.product.id" :shipped="data.shipped" :clips="data.clips" @changed="load" />
 
     <section class="mt-10 grid gap-4">
       <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">screens</h2>
@@ -186,9 +156,56 @@ const blur = (e: Event) => (e.target as HTMLElement).innerText.trim()
       </div>
     </section>
 
-    <section class="mt-10 grid gap-4">
-      <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">angles already used</h2>
-      <p class="m-0 max-w-[70ch] text-ink-2">{{ (data.product.memory.anglesUsed ?? []).slice(-12).map(a => a.title).join(' · ') || 'None yet. It won’t repeat an angle it has used recently.' }}</p>
-    </section>
+    <LocalRepo :product-id="data.product.id" :shipped="data.shipped" :clips="data.clips" @changed="load" />
+
+    <div class="mt-10 grid items-start gap-10 lg:grid-cols-2">
+      <section class="grid content-start gap-4">
+        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">voice rules</h2>
+        <ul class="m-0 grid list-none gap-2.5 p-0 text-[17px]">
+          <li v-for="(r, k) in rules" :key="k" class="flex items-baseline gap-3">
+            {{ r.text }}<em class="ml-auto text-[14px] whitespace-nowrap text-ink-3 not-italic">{{ r.source === 'team' ? `added by ${r.by === me?.email ? 'you' : r.by}` : 'learned' }}</em>
+            <button class="text-[14px] text-ink-3 hover:text-magenta" :aria-label="`Remove rule: ${r.text}`" @click="removeRule(k)">remove</button>
+          </li>
+        </ul>
+        <form class="flex items-center gap-2.5" @submit.prevent="addRule">
+          <label for="newrule" class="sr-only">New rule</label>
+          <input id="newrule" v-model="newRule" class="input min-w-0 flex-1 !text-[17px]" placeholder="say ‘work’, never ‘ticket’">
+          <button class="btn btn-sm">add rule</button>
+        </form>
+      </section>
+      <section class="grid content-start gap-4">
+        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">what it does</h2>
+        <p class="-mx-3 px-3 py-2.5 text-[21px] leading-[1.4] outline-0 hover:bg-raise focus:shadow-[inset_0_0_0_2px_var(--color-cyan)]" contenteditable="true" @blur="e => blur(e) !== (data!.product.memory.what ?? '') && save({ what: blur(e) })">{{ data.product.memory.what || 'Not read yet.' }}</p>
+        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">who it is for</h2>
+        <p class="-mx-3 px-3 py-2.5 text-[21px] leading-[1.4] outline-0 hover:bg-raise focus:shadow-[inset_0_0_0_2px_var(--color-cyan)]" contenteditable="true" @blur="e => blur(e) !== (data!.product.memory.who ?? '') && save({ who: blur(e) })">{{ data.product.memory.who || 'Not read yet.' }}</p>
+      </section>
+    </div>
+
+    <div class="mt-10 grid items-start gap-10 lg:grid-cols-2">
+      <section class="grid content-start gap-4">
+        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">brand</h2>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <i v-for="c in data.product.memory.brand?.colours ?? []" :key="c" class="size-12" :style="{ background: c }" :title="c" />
+          <span class="ml-2 text-[13px] text-ink-3">{{ (data.product.memory.brand?.fonts ?? []).join(', ') || 'no fonts read yet' }}, taken from the site</span>
+        </div>
+        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">angles already used</h2>
+        <p class="m-0 max-w-[70ch] text-ink-2">{{ (data.product.memory.anglesUsed ?? []).slice(-12).map(a => a.title).join(' · ') || 'None yet. It won’t repeat an angle it has used recently.' }}</p>
+      </section>
+      <section class="grid content-start gap-4">
+        <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">demo login</h2>
+        <p class="m-0 text-ink-2">{{ data.product.hasLogin ? 'A demo login is saved. It is never shown again.' : 'None yet. With one it can show screens behind sign-in.' }} <span v-if="data.product.need" class="text-orange">{{ data.product.need }}.</span></p>
+        <form class="grid gap-2.5 md:grid-cols-[1fr_1fr_auto]" @submit.prevent="saveLogin">
+          <input v-model="user" class="input !text-[17px]" autocomplete="off" placeholder="demo@yourapp.com" aria-label="Demo login">
+          <input v-model="pass" class="input !text-[17px]" type="password" autocomplete="new-password" placeholder="demo password" aria-label="Demo password">
+          <button class="btn btn-sm" :disabled="!user || !pass">save</button>
+        </form>
+        <div class="mt-4 flex flex-wrap gap-2.5">
+          <button class="btn btn-ghost btn-sm" :disabled="running" @click="reread">read the site again</button>
+          <button v-if="!confirmDelete" class="btn btn-ghost btn-sm" @click="confirmDelete = true">delete product</button>
+          <span v-else class="flex flex-wrap items-center gap-2.5"><span class="text-ink-2">Delete {{ data.product.name }} and all its posts? This can’t be undone.</span>
+            <button class="btn btn-sm !border-magenta !bg-magenta" @click="remove">yes, delete</button><button class="btn btn-ghost btn-sm" @click="confirmDelete = false">keep it</button></span>
+        </div>
+      </section>
+    </div>
   </template>
 </template>

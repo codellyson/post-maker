@@ -16,7 +16,7 @@ const Frame = z.object({
 })
 
 const Draft = z.object({
-  pattern: z.string().describe('the post pattern, e.g. "How it works, in 5 slides", "Demo highlight", "One feature, one line", "Customer-style story", "Comparison", "Tip"'),
+  pattern: z.string().describe('the post pattern, e.g. "Result first", "The painful moment", "Before and after", "Press one thing", "Like X, for Y", "What it replaces", "Why I built it", "Three steps", "Tip"'),
   title: z.string().describe('a short lowercase name for the post, 2 to 6 words'),
   why: z.string().describe('one sentence for the team: why this post and format should work'),
   hook: z.string().describe('the first line a reader sees'),
@@ -28,12 +28,14 @@ const Draft = z.object({
   imageScreen: z.string().describe('image only: the screen id to show. Empty otherwise.'),
   x: z.string().describe('the X post, 280 characters at most'),
   linkedin: z.string().describe('the LinkedIn post; the first 210 characters must make people click "see more"'),
+  facebook: z.string().describe('the Facebook post, written for people who follow the page: conversational, the first 125 characters carry it on a phone; no hashtags'),
   instagram: z.string().describe('the Instagram caption; the first 125 characters carry it; a few relevant hashtags at the end'),
   reddit: z.string().describe('a Reddit post as "Title: ...\\n\\nBody: ..." only when the angle suits a community, else empty'),
   usesExampleDetails: z.string().describe('if the post uses made-up details (times, names, numbers), name them in one short sentence, e.g. "The names and times are a demo; swap in a real case or keep it labelled as a demo." Else empty.'),
 })
 
 const Drafts = z.object({ drafts: z.array(Draft) })
+const DraftsNoInstagram = z.object({ drafts: z.array(Draft.omit({ instagram: true })) })
 
 const Verdict = z.object({
   keep: z.array(z.object({ index: z.number().int(), flag: z.string().describe('one short sentence, only for a fact a person must confirm in the real world before posting (e.g. a made-up name or time). Never notes about formatting, links or screen ids. Usually empty.') }))
@@ -57,8 +59,38 @@ What good looks like:
 - No hype words, no exclamation marks, no emoji unless the voice rules allow them, no claims the site does not support. Never invent customers, numbers or quotes as if they were real.
 - Visuals show the real product: use the screens provided, by id. A carousel is one idea per slide.
 - A slide or frame caption must match what its screen actually shows. If no screen shows a moment (an action, a result), make that a text slide or frame instead of pairing it with an unrelated screen. Never use the same screen for two different moments in one post.
-- X and LinkedIn posts end with the product's link. Instagram says "link in bio" instead.`
+- X, LinkedIn and Facebook posts end with the product's link. Instagram says "link in bio" instead.
+
+How launches that win write (from Product Hunt day winners; the quoted lines show the shape only, never reuse their words):
+- Lead with the result the reader gets, not the feature or how it works. "Production-ready UI in seconds", not "We added a UI generator".
+- Other hooks that work: the painful moment the reader already knows ("You come back from a week off and nobody can tell you where the project is"); the one action to take ("Show it once, let it run"); a known name for the category ("The Vercel for GTM", "Email that feels like chat"); the tool or chore it replaces; a question about the reader's own day ("Your teammate's AI did something today. Do you know what?").
+- A thesis line in two short halves that flips how the reader sees the problem: "AI is single-player. Real work is multiplayer." "Email is a conversation that forgot it was one." "Everyone's AI is fast. Almost nobody's team is." Use one when the product has a real point of view; never force it.
+- Tell the painful loop as the steps people repeat today ("You prompt, copy the answer into chat, explain it to a teammate, then prompt again"), then one line on what breaks ("The AI got faster, but the team didn't").
+- Proof beats claims: the team uses it themselves ("This launch was planned in it"), or it began as a tool the maker built for themselves.
+- One rule people can repeat, said the same way every time ("Agents prepare, people approve", "Everything stays on your computer").
+- Be honest about limits ("It's far from finished", "That isn't there yet") when it builds trust. Never hide one the site states.
+- An update post opens with the user's problem and what the maker noticed ("I kept losing track of who was answering what. So I rebuilt the view around threads."), not the version number.
+- One post, one idea. Pick the single sharpest moment and show it; do not tour the features.
+- Show the before and after: the messy way people do it today, then the same job with the product.
+- Speak like the maker telling a peer why it exists: first person, a real reason, a real detail. Real numbers only if the site states them.
+- Answer the doubt a reader will have (privacy, setup time, price, "why not just use X") before they ask.
+- Write the middle as what the reader sees or does ("You open the board: the checkout bug is with Sam, handed in an hour ago, waiting for you."), not "In ${name}, X does Y". Name the product at most once in the body. No lists of features.
+- The last line before the link is never a feature statement. It is a question to the reader, the first thing to try ("Hand it one bug from your inbox and watch where it goes."), or the honest state of things.
+- End with a reason to act or a real question to the reader, never a slogan. A question must be one people want to answer about their own work ("What was the worst part for you?", "If you could see everything your team's AI touched today, would you like what you saw?"). Or give the first two or three things to try.
+- Never explain setup, commands, file formats or docs unless the post is a tip for people who already use the product. Readers care what changes for them, not how it is built.
+- Visuals: the cover carries the hook as a short result line, and the next slides show the real product. Each slide is one benefit headline of at most two short lines over a large, real screen; a concept the screens cannot show (what connects to what) becomes a simple text slide. A "three steps" slide works when setup is the doubt. Each slide earns its place; cut any slide that only repeats the caption.
+- Vary the shape across posts: not every post is hook, list, link.`
 }
+
+const SCORECARD = `Score each draft 1 to 10 on each line:
+1. Stops the scroll: the first line alone makes the right reader stop (a result, a painful moment, or a sharp action), not a description.
+2. One idea: one sharp point, not a feature tour.
+3. Specific: names a real moment, screen or detail of this product that a competitor could not post.
+4. For the reader: about what changes for them, not how the product works inside.
+5. Visual earns it: the cover states the hook and each slide or frame shows something the text cannot.
+6. Reason to click: the X post's last line before the link is a question people will answer or a first thing to try. A feature statement there scores 4 at most.
+7. Shows, not tells: the middle is what the reader sees or does, not "In the product, X does Y" or a list of features.
+Keep only drafts that score 7 or more on every line. Rank by total. If fewer than 3 pass, keep the best 3 and say in the flag what to fix.`
 
 export async function writePosts(env: Env, productId: string, progress: Progress) {
   const db = env.DB
@@ -72,11 +104,11 @@ export async function writePosts(env: Env, productId: string, progress: Progress
   const images = await Promise.all(shots.map(async s => (await env.MEDIA.get(s.r2_key))?.arrayBuffer()))
   // Real screen recordings from the local app make the strongest clips.
   const clips = (await db.prepare('SELECT id, title, why, captions, duration FROM clips WHERE product_id = ? AND use = 1').bind(productId).all<{ id: string; title: string; why: string; captions: string; duration: number }>()).results
-  const todays = (await db.prepare('SELECT id, title, rank, status, EXISTS (SELECT 1 FROM postings WHERE post_id = posts.id) AS posted FROM posts WHERE product_id = ? AND day = ?').bind(productId, day).all<{ id: string; title: string; rank: number; status: string; posted: number }>()).results
+  const todays = (await db.prepare('SELECT id, title, rank, status, replaced_at, EXISTS (SELECT 1 FROM postings WHERE post_id = posts.id) AS posted FROM posts WHERE product_id = ? AND day = ?').bind(productId, day).all<{ id: string; title: string; rank: number; status: string; replaced_at: number | null; posted: number }>()).results
   const already = todays.map(r => r.title)
-  // A day holds at most 5. Approved or posted ones stay; new ideas replace the untouched drafts.
-  const held = todays.filter(r => r.status === 'approved' || r.posted)
-  const loose = todays.filter(r => !held.includes(r))
+  // A day holds at most 5. Approved or posted ones stay; new ideas replace the untouched drafts, which stay in "all posts" as replaced.
+  const held = todays.filter(r => !r.replaced_at && (r.status === 'approved' || r.posted))
+  const loose = todays.filter(r => !r.replaced_at && !held.includes(r))
   const slots = 5 - held.length
   if (slots <= 0) throw new Error('Today already has 5 approved or posted posts.')
   const used = (memory.anglesUsed ?? []).slice(-30)
@@ -87,7 +119,7 @@ export async function writePosts(env: Env, productId: string, progress: Progress
 
   await progress('writing ideas')
   const { drafts } = await ai.json({
-    schema: Drafts,
+    schema: memory.instagram ? Drafts : DraftsNoInstagram,
     system: sys,
     parts: [
       { type: 'text', text: 'Screens you can use, by id:' },
@@ -112,12 +144,14 @@ ${memory.repo.readme.slice(0, 4000)}` : ''}` },
     effort: 'medium',
     parts: [{ type: 'text', text: `You are the team's strict editor. Keep only posts someone would post with at most a small edit; rank them best first. Drop anything generic, off-voice, unsupported by what the product does, or too close to another kept post.
 
-${drafts.map((d, i) => `#${i} [${d.format}] ${d.title}\nhook: ${d.hook}\nX: ${d.x}\nLinkedIn: ${d.linkedin}`).join('\n\n')}` }],
+${SCORECARD}
+
+${drafts.map((d, i) => `#${i} [${d.format}] ${d.title}\nhook: ${d.hook}\nvisual: ${d.format === 'carousel' ? d.slides.map(s => s.headline || s.caption).join(' | ') : d.format === 'image' ? d.imageHeadline : d.recording ? `recorded clip ${d.recording}` : d.frames.map(f => f.caption).join(' | ')}\nX: ${d.x}\nLinkedIn: ${d.linkedin}`).join('\n\n')}` }],
   })
 
   const valid = new Set(shots.map(s => s.id))
   const screen = (id: string) => (valid.has(id) ? id : shots[0]?.id ?? '')
-  const visualOf = (d: z.infer<typeof Draft>): Visual => {
+  const visualOf = (d: Omit<z.infer<typeof Draft>, 'instagram'>): Visual => {
     if (d.format === 'carousel') return { format: 'carousel', slides: d.slides.map((s, i) => s.kind === 'cover' ? { kind: 'cover', hl: s.headline, sub: s.caption, shot: valid.has(s.screen) ? s.screen : undefined }
       : s.kind === 'cta' ? { kind: 'cta', hl: s.headline, url: new URL(p.url).host }
       : s.kind === 'shot' ? { kind: 'shot', n: String(i).padStart(2, '0'), cap: s.caption, shot: screen(s.screen) }
@@ -129,10 +163,10 @@ ${drafts.map((d, i) => `#${i} [${d.format}] ${d.title}\nhook: ${d.hook}\nX: ${d.
   }
 
   const now = Date.now()
-  const start = Math.max(-1, ...held.map(r => r.rank)) + 1
+  const start = Math.max(-1, ...todays.map(r => r.rank)) + 1
   const stmts = verdict.keep.slice(0, slots).filter(k => drafts[k.index]).map((k, rank) => {
     const d = drafts[k.index]!
-    const copy = { X: d.x, LinkedIn: d.linkedin, Instagram: d.instagram, ...(d.reddit ? { Reddit: d.reddit } : {}) }
+    const copy = { X: d.x, LinkedIn: d.linkedin, Facebook: d.facebook, ...('instagram' in d && d.instagram ? { Instagram: d.instagram } : {}), ...(d.reddit ? { Reddit: d.reddit } : {}) }
     const flag = d.usesExampleDetails || k.flag || null
     return db.prepare('INSERT INTO posts (id, product_id, day, rank, format, pattern, title, why, flag, hook, copy, visual, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
       .bind(newId(), productId, day, start + rank, d.format, d.pattern, d.title.toLowerCase(), d.why, flag, d.hook, JSON.stringify(copy), JSON.stringify(visualOf(d)), now)
@@ -142,7 +176,7 @@ ${drafts.map((d, i) => `#${i} [${d.format}] ${d.title}\nhook: ${d.hook}\nX: ${d.
   if (!stmts.length) throw new Error('The quality check kept nothing today. Try again, or add voice rules so it knows what good looks like.')
   const kept = verdict.keep.slice(0, slots).map(k => drafts[k.index]).filter(Boolean).map(d => ({ title: d!.title, pattern: d!.pattern, day }))
   memory.anglesUsed = [...(memory.anglesUsed ?? []), ...kept].slice(-60)
-  const swap = loose.map(r => db.prepare('DELETE FROM posts WHERE id = ?').bind(r.id))
+  const swap = loose.map(r => db.prepare('UPDATE posts SET replaced_at = ? WHERE id = ?').bind(now, r.id))
   await db.batch([...swap, ...stmts, ...drops, db.prepare('UPDATE products SET memory = ?, updated_at = ? WHERE id = ?').bind(JSON.stringify(memory), now, productId)])
   await progress(`kept ${stmts.length}, dropped ${drops.length}`)
 }

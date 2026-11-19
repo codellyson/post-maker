@@ -29,23 +29,24 @@ watch(text, (t) => { if (editable.value && document.activeElement !== editable.v
       <div class="min-w-0">
         <b>{{ platform === 'Instagram' ? host : name }}</b>
         <span v-if="platform === 'X'" class="text-[13px] text-[#536471]"> @{{ handle }} · now</span>
-        <div v-if="platform === 'LinkedIn'" class="text-[13px] text-[#536471]">Now · Public</div>
+        <div v-if="platform === 'LinkedIn' || platform === 'Facebook'" class="text-[13px] text-[#536471]">{{ platform === 'Facebook' ? 'Just now' : 'Now' }} · Public</div>
         <div v-if="platform === 'Reddit'" class="text-[13px] text-[#536471]">r/SideProject · just now</div>
       </div>
     </div>
     <PostVisual v-if="platform === 'Instagram'" :post="post" :product-id="productId" :name="name" :brand="brand" :tall="tall" :slide="slide" :paused="paused" @slide="slide = $event">
       <template #clip-ui><ClipUi v-model:paused="paused" /></template>
     </PostVisual>
-    <p v-if="cut" class="m-0 whitespace-pre-wrap text-[14.5px]">{{ shown }}<button class="text-[#536471]" @click="open = true">…{{ platform === 'LinkedIn' ? 'see more' : 'more' }}</button></p>
+    <p v-if="cut" class="m-0 whitespace-pre-wrap text-[14.5px]">{{ shown }}<button class="text-[#536471]" @click="open = true">…{{ platform === 'LinkedIn' ? 'see more' : platform === 'Facebook' ? 'See more' : 'more' }}</button></p>
     <p v-else ref="editable" contenteditable="true" spellcheck="true" aria-label="Post text, editable"
       class="m-0 rounded-sm whitespace-pre-wrap [overflow-wrap:anywhere] text-[14.5px] outline-0 hover:bg-[#f3f6f8] focus:bg-[#eef8fb] focus:shadow-[0_0_0_2px_var(--color-cyan)]"
       @input="emit('edit', ($event.target as HTMLElement).innerText)" />
-    <PostVisual v-if="platform !== 'Instagram'" :post="post" :product-id="productId" :name="name" :brand="brand" :mode="mode" :tall="tall && platform === 'LinkedIn'" :slide="slide" :paused="paused" @slide="slide = $event">
+    <PostVisual v-if="platform !== 'Instagram'" :post="post" :product-id="productId" :name="name" :brand="brand" :mode="mode" :tall="tall && (platform === 'LinkedIn' || platform === 'Facebook')" :slide="slide" :paused="paused" @slide="slide = $event">
       <template #clip-ui><ClipUi v-model:paused="paused" /></template>
     </PostVisual>
     <div class="flex gap-[18px] border-t border-[#e6e8ea] pt-2 text-[13px] text-[#536471]">
       <template v-if="platform === 'X'"><span>Reply</span><span>Repost</span><span>Like</span><span>Views</span></template>
       <template v-else-if="platform === 'Instagram'"><span>Like</span><span>Comment</span><span>Share</span><span class="ml-auto">Save</span></template>
+      <template v-else-if="platform === 'Facebook'"><span>Like</span><span>Comment</span><span>Share</span></template>
       <template v-else-if="platform === 'Reddit'"><span>Upvote</span><span>Comment</span><span>Share</span></template>
       <template v-else><span>Like</span><span>Comment</span><span>Repost</span><span>Send</span></template>
     </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Line icons drawn for the rail and buttons: one stroke weight, square caps.
-defineProps<{ name: 'today' | 'products' | 'posted' | 'add' | 'team' | 'play' | 'prev' | 'slides' | 'clip' | 'image' }>()
+defineProps<{ name: 'today' | 'posts' | 'products' | 'posted' | 'add' | 'team' | 'play' | 'prev' | 'slides' | 'clip' | 'image' }>()
 </script>
 
 <template>
@@ -12,6 +12,7 @@ defineProps<{ name: 'today' | 'products' | 'posted' | 'add' | 'team' | 'play' | 
   </svg>
   <svg v-else viewBox="0 0 24 24" aria-hidden="true" class="size-[22px] fill-none stroke-current" style="stroke-width:1.6;stroke-linecap:square">
     <path v-if="name === 'today'" d="M3 11 12 4l9 7v9h-6v-6H9v6H3z" />
+    <path v-else-if="name === 'posts'" d="M4 6h16M4 12h16M4 18h10" />
     <path v-else-if="name === 'products'" d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" />
     <path v-else-if="name === 'posted'" d="M4 12.5 9.5 18 20 6" />
     <path v-else-if="name === 'add'" d="M12 4v16M4 12h16" />

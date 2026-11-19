@@ -3,12 +3,12 @@
 export const FILLS = ['cyan', 'magenta', 'lime', 'orange', 'purple'] as const
 export type Fill = typeof FILLS[number]
 
-export const PLATFORMS = ['X', 'LinkedIn', 'Instagram', 'Reddit'] as const
+export const PLATFORMS = ['Facebook', 'X', 'Instagram', 'Reddit', 'LinkedIn'] as const
 export type Platform = typeof PLATFORMS[number]
 
 // Characters shown before the feed cuts the text with "see more" / "more".
-export const FOLD: Partial<Record<Platform, number>> = { LinkedIn: 210, Instagram: 125 }
-export const LIMITS: Record<Platform, number> = { X: 280, LinkedIn: 3000, Instagram: 2200, Reddit: 40000 }
+export const FOLD: Partial<Record<Platform, number>> = { LinkedIn: 210, Facebook: 125, Instagram: 125 }
+export const LIMITS: Record<Platform, number> = { X: 280, LinkedIn: 3000, Facebook: 63206, Instagram: 2200, Reddit: 40000 }
 
 export type Rule = { text: string; source: 'learned' | 'team'; by?: string }
 
@@ -18,6 +18,8 @@ export type Memory = {
   who?: string
   brand?: { colours: string[]; fonts: string[]; logo?: string }
   rules?: Rule[]
+  // Instagram copy is opt-in per product.
+  instagram?: boolean
   anglesUsed?: { title: string; pattern: string; day: string }[]
   pages?: number
   // From the local repo, via the desktop app.
@@ -54,6 +56,8 @@ export type Post = {
   visual: Visual
   status: 'draft' | 'approved'
   approvedBy: string | null
+  // A newer run of ideas took its place on Today; it still shows in "all posts".
+  replaced: boolean
   postings: { platform: string; by: string; at: number }[]
 }
 
