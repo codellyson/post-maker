@@ -26,7 +26,7 @@ const Draft = z.object({
   recording: z.string().describe('clip only: the id of a recorded clip from the list, when one shows this post\'s moment. Its own captions are used. Else empty.'),
   imageHeadline: z.string().describe('image only: the headline on the image, with one *accent* phrase. Empty otherwise.'),
   imageScreen: z.string().describe('image only: the screen id to show. Empty otherwise.'),
-  x: z.string().describe('the X post, 280 characters at most'),
+  x: z.string().describe('the X post, 280 characters at most including the link. Its last line before the link is a short question to the reader or the first thing to try; cut words from the middle to make room.'),
   linkedin: z.string().describe('the LinkedIn post; the first 210 characters must make people click "see more"'),
   facebook: z.string().describe('the Facebook post, written for people who follow the page: conversational, the first 125 characters carry it on a phone; no hashtags'),
   instagram: z.string().describe('the Instagram caption; the first 125 characters carry it; a few relevant hashtags at the end'),
@@ -38,7 +38,7 @@ const Drafts = z.object({ drafts: z.array(Draft) })
 const DraftsNoInstagram = z.object({ drafts: z.array(Draft.omit({ instagram: true })) })
 
 const Verdict = z.object({
-  keep: z.array(z.object({ index: z.number().int(), flag: z.string().describe('one short sentence, only for a fact a person must confirm in the real world before posting (e.g. a made-up name or time). Never notes about formatting, links or screen ids. Usually empty.') }))
+  keep: z.array(z.object({ index: z.number().int(), flag: z.string().describe('one short sentence, only for a fact a person must confirm in the real world before posting (e.g. a made-up name or time). Never notes about formatting, links, screen ids, scores or what to fix. Usually empty.'), x: z.string().describe('only when this X post fails line 6: the full corrected X post, same text with its last line before the link turned into a question or a first thing to try, 280 characters at most. Else empty.') }))
     .describe('the drafts worth posting, best first, 3 to 5 of them'),
   drop: z.array(z.object({ index: z.number().int(), reason: z.string().describe('one plain sentence: why it is not good enough') })),
 })
@@ -90,7 +90,7 @@ const SCORECARD = `Score each draft 1 to 10 on each line:
 5. Visual earns it: the cover states the hook and each slide or frame shows something the text cannot.
 6. Reason to click: the X post's last line before the link is a question people will answer or a first thing to try. A feature statement there scores 4 at most.
 7. Shows, not tells: the middle is what the reader sees or does, not "In the product, X does Y" or a list of features.
-Keep only drafts that score 7 or more on every line. Rank by total. If fewer than 3 pass, keep the best 3 and say in the flag what to fix.`
+Keep only drafts that score 7 or more on every line. Rank by total. If fewer than 3 pass, keep the best 3. When a kept post fails only line 6 on X, write the corrected X post in its x field instead of describing the fix.`
 
 export async function writePosts(env: Env, productId: string, progress: Progress) {
   const db = env.DB
@@ -166,7 +166,7 @@ ${drafts.map((d, i) => `#${i} [${d.format}] ${d.title}\nhook: ${d.hook}\nvisual:
   const start = Math.max(-1, ...todays.map(r => r.rank)) + 1
   const stmts = verdict.keep.slice(0, slots).filter(k => drafts[k.index]).map((k, rank) => {
     const d = drafts[k.index]!
-    const copy = { X: d.x, LinkedIn: d.linkedin, Facebook: d.facebook, ...('instagram' in d && d.instagram ? { Instagram: d.instagram } : {}), ...(d.reddit ? { Reddit: d.reddit } : {}) }
+    const copy = { X: k.x || d.x, LinkedIn: d.linkedin, Facebook: d.facebook, ...('instagram' in d && d.instagram ? { Instagram: d.instagram } : {}), ...(d.reddit ? { Reddit: d.reddit } : {}) }
     const flag = d.usesExampleDetails || k.flag || null
     return db.prepare('INSERT INTO posts (id, product_id, day, rank, format, pattern, title, why, flag, hook, copy, visual, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
       .bind(newId(), productId, day, start + rank, d.format, d.pattern, d.title.toLowerCase(), d.why, flag, d.hook, JSON.stringify(copy), JSON.stringify(visualOf(d)), now)
