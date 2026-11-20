@@ -21,6 +21,16 @@ export async function assertIdle(event: H3Event, productId: string) {
   if (busy) throw createError({ statusCode: 409, statusMessage: 'Already working on this product. It will show up here when it is done.' })
 }
 
+// Each write or read is a paid AI run. A daily cap per product keeps a stuck finger or a script from running up the bill.
+const DAILY_CAP: Record<'read' | 'write', number> = { write: 8, read: 6 }
+export async function assertUnderCap(event: H3Event, productId: string, kind: 'read' | 'write') {
+  const dayStart = Date.parse(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`)
+  const row = await envOf(event).DB.prepare('SELECT COUNT(*) AS n FROM jobs WHERE product_id = ? AND kind = ? AND created_at >= ?').bind(productId, kind, dayStart).first<{ n: number }>()
+  if ((row?.n ?? 0) >= DAILY_CAP[kind]) {
+    throw createError({ statusCode: 429, statusMessage: `This product has had ${DAILY_CAP[kind]} ${kind === 'write' ? 'writes' : 'reads'} today, the daily limit. It resets at midnight UTC.` })
+  }
+}
+
 // Queue a job outside a request (the daily cron).
 export async function queueJob(env: Env, workspaceId: string, kind: Kind, productId: string) {
   const id = newId()

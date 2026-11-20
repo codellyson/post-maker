@@ -6,7 +6,8 @@ const emit = defineEmits<{ changed: [] }>()
 const me = useMe()
 const platforms = computed(() => PLATFORMS.filter(p => props.post.copy[p]))
 const platform = ref<Platform>('Facebook')
-watch(() => props.post.id, () => { platform.value = platforms.value[0]! }, { immediate: true })
+const saved = ref<'' | 'saving' | 'saved'>('')
+watch(() => props.post.id, () => { platform.value = platforms.value[0]!; saved.value = '' }, { immediate: true })
 const brand = computed(() => brandOf(props.product.memory))
 const text = computed(() => props.post.copy[platform.value] ?? '')
 const fold = computed(() => FOLD[platform.value])
@@ -18,7 +19,10 @@ function edit(t: string) {
   const where = platform.value
   props.post.copy[where] = t
   clearTimeout(saveTimer)
-  saveTimer = setTimeout(() => $fetch(`/api/posts/${props.post.id}`, { method: 'PATCH', body: { platform: where, text: t } }).catch(e => toast(`Not saved: ${errorText(e)}`)), 600)
+  saved.value = 'saving'
+  saveTimer = setTimeout(() => $fetch(`/api/posts/${props.post.id}`, { method: 'PATCH', body: { platform: where, text: t } })
+    .then(() => (saved.value = 'saved'))
+    .catch((e) => { saved.value = ''; toast(`Not saved: ${errorText(e)}`) }), 600)
 }
 async function act(path: string, method: 'POST' | 'DELETE', bodyData?: object, msg?: string) {
   busy.value = [method, path, (bodyData as { platform?: string } | undefined)?.platform].filter(Boolean).join(' ')
@@ -73,6 +77,7 @@ function openPlatform() {
     <div class="flex flex-wrap gap-2.5">
       <button v-if="post.status !== 'approved'" class="btn btn-ghost btn-sm" :disabled="!!busy" :aria-busy="busy === 'POST approve'" @click="act('approve', 'POST', undefined, 'Approved. Anyone on the team can post it now.')">approve</button>
       <button class="btn btn-ghost btn-sm" :disabled="!!busy" @click="asking = !asking">mark posted</button>
+      <button v-if="post.status === 'approved' && !post.postings.length" class="btn btn-ghost btn-sm" :disabled="!!busy" :aria-busy="busy === 'DELETE approve'" @click="act('approve', 'DELETE', undefined, 'Back to waiting for review.')">undo approve</button>
       <button v-if="post.postings.length" class="btn btn-ghost btn-sm" :disabled="!!busy" :aria-busy="busy === 'DELETE posted'" @click="act('posted', 'DELETE')">undo posted</button>
     </div>
     <div v-if="asking" class="grid max-w-[420px] gap-2.5 border-[1.5px] border-ink p-3.5">
@@ -81,7 +86,7 @@ function openPlatform() {
         <button v-for="p in platforms" :key="p" class="btn btn-sm" :class="p !== platform && 'btn-ghost'" :disabled="!!busy" :aria-busy="busy === `POST posted ${p}`" @click="act('posted', 'POST', { platform: p }, 'Marked posted. The team can see it.')">{{ p.toLowerCase() }}</button>
       </div>
     </div>
-    <span class="text-[13px] text-ink-3 tabular-nums" :class="text.length > LIMITS[platform] && 'text-magenta'">{{ text.length }} / {{ LIMITS[platform].toLocaleString() }} characters<template v-if="fold"> · first {{ fold }} show before “more”</template></span>
+    <span class="text-[13px] text-ink-3 tabular-nums" :class="text.length > LIMITS[platform] && 'text-magenta'">{{ text.length }} / {{ LIMITS[platform].toLocaleString() }} characters<template v-if="fold"> · first {{ fold }} show before “more”</template><template v-if="saved"> · {{ saved === 'saving' ? 'saving…' : 'saved' }}</template></span>
     <Feed :post="post" :platform="platform" :product-id="product.id" :name="product.name" :url="product.url" :brand="brand" @edit="edit" />
     <p class="-mt-2.5 text-[13px] text-ink-3">Click the post text to edit it. Open “see more” first on LinkedIn, Facebook and Instagram.</p>
   </section>
