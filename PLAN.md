@@ -230,3 +230,24 @@ Second deploy, 19 November 2026: version `1ad3a4c3`. Migration 0005 (`posts.repl
 
 - `wrangler rollback post-maker` returns to the last version.
 - Migrations only add tables, so the old code still runs on the new schema.
+
+## Pipeline (20 November 2026)
+
+- `.github/workflows/ci.yml` runs on every push and pull request: frozen install, typecheck, build, and a Worker dry run.
+- A green push to `main` then deploys. It applies D1 migrations first, then builds and deploys the Worker, then runs a smoke test: `/signin` answers and carries `og:image`, and `/api/me` returns 401.
+- Deploys run one at a time.
+- Pushing to `main` is now the deploy. Push only on the owner's go-ahead, as before.
+- `pnpm run deploy` still works by hand as a fallback.
+- `.github/workflows/desktop.yml` runs when a `v*` tag is pushed, or when started by hand. It builds `Post maker.app` on a macOS runner against the live site and attaches a zip to a GitHub release. The app is unsigned.
+
+### One-time setup (owner)
+
+1. Cloudflare dashboard → My Profile → API Tokens → Create Token → use the "Edit Cloudflare Workers" template.
+2. Add the permission Account → D1 → Edit.
+3. Limit the token to this account and create it.
+4. GitHub → codellyson/post-maker → Settings → Secrets and variables → Actions → New repository secret:
+   - `CLOUDFLARE_API_TOKEN` (the token)
+   - `CLOUDFLARE_ACCOUNT_ID` (the account ID that `wrangler whoami` shows)
+5. Until the token is set, pushes run the checks and skip the deploy cleanly.
+
+`ANTHROPIC_API_KEY` and `CRED_KEY` stay Worker secrets on Cloudflare and are never put in GitHub.

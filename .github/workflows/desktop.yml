@@ -1,0 +1,40 @@
+# Push a version tag (git tag v0.2.0 && git push origin v0.2.0) to build the macOS desktop app
+# against the live site and attach it to a GitHub release, where the team downloads it.
+# The app is unsigned: the first time, right-click it and choose Open.
+name: desktop
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop
+      # Same CLI version as local builds. Run from the repo root: beforeBuildCommand is `sh desktop/stage-engine.sh`.
+      - name: Build Post maker.app
+        env:
+          PM_APP_URL: https://postmaker.kreativekorna.com
+        run: npx --yes @tauri-apps/cli@2.11.2 build --bundles app
+      - name: Zip
+        run: ditto -c -k --keepParent "desktop/target/release/bundle/macos/Post maker.app" "$RUNNER_TEMP/Post-maker-mac.zip"
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then tag="desktop-$(date -u +%Y%m%d-%H%M)"; fi
+          gh release create "$tag" "$RUNNER_TEMP/Post-maker-mac.zip" --title "Post maker $tag" \
+            --notes "macOS app, opens https://postmaker.kreativekorna.com. Unsigned: the first time, right-click it and choose Open."

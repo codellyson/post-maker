@@ -1,0 +1,80 @@
+# Every push and pull request runs the checks. A green push to main then deploys the Worker
+# to https://postmaker.kreativekorna.com: migrations first, then the code, then a smoke test.
+#
+# Secrets the deploy job needs (repo → Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN   "Edit Cloudflare Workers" template + D1:Edit (see PLAN.md, "Pipeline")
+#   CLOUDFLARE_ACCOUNT_ID  not sensitive, kept alongside the token
+# ANTHROPIC_API_KEY and CRED_KEY stay Worker secrets on Cloudflare; GitHub never sees them.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6 # version comes from package.json "packageManager"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Build
+        run: pnpm build
+      - name: Worker dry run
+        run: pnpm exec wrangler deploy --dry-run
+      # Jobs can't read secrets in their `if`, so surface "is deploy configured" as an output.
+      # Until the token is set, pushes to main run the checks and skip the deploy cleanly.
+      - id: cf
+        run: echo "ready=${{ secrets.CLOUDFLARE_API_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+    outputs:
+      deploy-ready: ${{ steps.cf.outputs.ready }}
+
+  deploy:
+    needs: check
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main'
+      && needs.check.outputs.deploy-ready == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    # One deploy at a time; a newer push waits for the running one instead of cutting it off mid-migration.
+    concurrency:
+      group: deploy-worker
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Before the code, so new code never runs against an old schema. Migrations only add, so old
+      # code keeps working against the new schema if the deploy below fails.
+      - name: Apply D1 migrations
+        run: pnpm db:migrate:remote
+      - name: Build and deploy
+        run: pnpm run deploy
+      - name: Smoke test
+        run: |
+          up=""
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS -o /dev/null https://postmaker.kreativekorna.com/signin; then up=1; break; fi
+            sleep 10
+          done
+          if [ -z "$up" ]; then echo "the site never answered" >&2; exit 1; fi
+          # The page carries its preview tags, and the API is up and still refuses the signed-out.
+          curl -fsS https://postmaker.kreativekorna.com/signin | grep -q 'og:image'
+          curl -sS -o /dev/null -w '%{http_code}' https://postmaker.kreativekorna.com/api/me | grep -q 401
