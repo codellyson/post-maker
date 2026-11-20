@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          # The repo's packageManager is pnpm, but this job only needs npm (stage-engine.sh, npx); skip the pnpm cache lookup.
+          package-manager-cache: false
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
