@@ -146,6 +146,7 @@ export async function readProduct(env: Env, productId: string, progress: Progres
   await progress('learning what it does and how it talks')
   const learned = await aiFor(env).json({
     schema: Learned,
+    signal: progress.signal,
     effort: 'medium',
     system: 'You read a software product\'s own website and describe it plainly and exactly, for a team that will write social posts about it. Never invent features, customers or numbers.',
     parts: [
@@ -154,6 +155,7 @@ export async function readProduct(env: Env, productId: string, progress: Progres
       { type: 'text', text: 'Describe the product, its audience and its voice, and name each screenshot.' },
     ],
   })
+  await progress('saving what it learned')
   for (const [i, id] of ids.entries()) {
     if (learned.shotLabels[i]) await db.prepare('UPDATE shots SET label = ? WHERE id = ?').bind(learned.shotLabels[i], id).run()
   }

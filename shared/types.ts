@@ -75,6 +75,8 @@ export type Product = {
   readAt: number | null
   ready: number
   postedThisWeek: number
+  // A read or write still running (started within the hour), so every page can show it is busy.
+  job: 'read' | 'write' | null
 }
 
 export type Shot = { id: string; label: string; page: string; w: number; h: number; use: boolean; source: 'read' | 'upload' | 'local'; url: string }

@@ -6,15 +6,17 @@ const WEEK = 7 * 86_400_000
 export async function listProducts(event: H3Event): Promise<Product[]> {
   const db = envOf(event).DB
   const day = today()
+  await sweepStale(db)
   const rows = await db.prepare(
     `SELECT p.id, p.name, p.url, p.colour, p.status, p.need, p.memory, p.creds IS NOT NULL AS has_login, p.read_at,
        (SELECT COUNT(*) FROM posts x WHERE x.product_id = p.id AND x.day = ? AND x.replaced_at IS NULL AND NOT EXISTS (SELECT 1 FROM postings g WHERE g.post_id = x.id)) AS ready,
-       (SELECT COUNT(*) FROM postings g JOIN posts x ON x.id = g.post_id WHERE x.product_id = p.id AND g.posted_at > ?) AS week
+       (SELECT COUNT(*) FROM postings g JOIN posts x ON x.id = g.post_id WHERE x.product_id = p.id AND g.posted_at > ?) AS week,
+       (SELECT j.kind FROM jobs j WHERE j.product_id = p.id AND j.status IN ('queued', 'running') AND j.kind IN ('read', 'write') AND j.created_at > ? ORDER BY j.created_at DESC LIMIT 1) AS job
      FROM products p WHERE p.workspace_id = ? ORDER BY p.created_at`,
-  ).bind(day, Date.now() - WEEK, userOf(event).workspaceId).all<{ id: string; name: string; url: string; colour: string; status: Product['status']; need: string | null; memory: string; has_login: number; read_at: number | null; ready: number; week: number }>()
+  ).bind(day, Date.now() - WEEK, Date.now() - 3_600_000, userOf(event).workspaceId).all<{ id: string; name: string; url: string; colour: string; status: Product['status']; need: string | null; memory: string; has_login: number; read_at: number | null; ready: number; week: number; job: 'read' | 'write' | null }>()
   return rows.results.map(r => ({
     id: r.id, name: r.name, url: r.url, colour: r.colour as Fill, status: r.status, need: r.need,
-    memory: JSON.parse(r.memory) as Memory, hasLogin: !!r.has_login, readAt: r.read_at, ready: r.ready, postedThisWeek: r.week,
+    memory: JSON.parse(r.memory) as Memory, hasLogin: !!r.has_login, readAt: r.read_at, ready: r.ready, postedThisWeek: r.week, job: r.job,
   }))
 }
 

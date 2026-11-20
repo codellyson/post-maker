@@ -19,13 +19,23 @@ async function load() {
   if (j && (j.status === 'queued' || j.status === 'running') && !running.value) follow(j.id)
   else if (j) lines.value = j.progress
 }
-async function follow(jobId: string) {
+const jobId = ref<string | null>(null)
+const stopping = ref(false)
+async function stop() {
+  if (!jobId.value) return
+  stopping.value = true
+  await stopRunning(jobId.value)
+}
+async function follow(id: string) {
+  jobId.value = id
   running.value = true
   try {
-    const job = await followJob(jobId, l => (lines.value = l))
+    const job = await followJob(id, l => (lines.value = l))
     if (job.status === 'failed') toast(job.error ?? 'Reading did not work.')
   } finally {
     running.value = false
+    stopping.value = false
+    jobId.value = null
     await load()
     loadProducts()
   }
@@ -98,7 +108,9 @@ async function remove() {
   await loadProducts()
   navigateTo('/products')
 }
-onMounted(() => load().catch(e => toast(errorText(e))))
+const loadError = ref('')
+function reload() { loadError.value = ''; load().catch(e => (loadError.value = errorText(e))) }
+onMounted(reload)
 const blur = (e: Event) => (e.target as HTMLElement).innerText.trim()
 </script>
 
@@ -113,6 +125,7 @@ const blur = (e: Event) => (e.target as HTMLElement).innerText.trim()
     <section v-if="running || data.product.status === 'failed'" class="mb-10 grid max-w-[760px] gap-5">
       <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] font-light text-cyan">{{ running ? 'reading the site' : 'reading failed' }}</h2>
       <JobLines :lines="lines" :running="running" />
+      <button v-if="running && jobId" class="btn btn-ghost btn-sm justify-self-start" :disabled="stopping" :aria-busy="stopping" @click="stop">{{ stopping ? 'stopping after this step…' : 'stop reading' }}</button>
       <p v-if="!running && data.job?.error" class="m-0 bg-magenta px-3.5 py-2.5 font-normal text-black">{{ data.job.error }}</p>
     </section>
 
@@ -141,7 +154,7 @@ const blur = (e: Event) => (e.target as HTMLElement).innerText.trim()
         <p class="m-0 max-w-[62ch] text-ink-2">For moments a link can’t reach: a dashboard behind sign-in, a result mid-action. Name each one by what it shows; the writer reads the name.</p>
       </div>
       <p v-if="!data.shots.length" class="m-0 text-ink-2">None yet.</p>
-      <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3.5">
+      <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] sm:gap-3.5">
         <div v-for="s in data.shots" :key="s.id" class="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-2">
           <div class="relative">
             <img :src="s.url" :alt="s.label" class="aspect-[16/10] w-full bg-raise object-contain" loading="lazy">
@@ -162,8 +175,8 @@ const blur = (e: Event) => (e.target as HTMLElement).innerText.trim()
       <section class="grid content-start gap-4">
         <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">voice rules</h2>
         <ul class="m-0 grid list-none gap-2.5 p-0 text-[17px]">
-          <li v-for="(r, k) in rules" :key="k" class="flex items-baseline gap-3">
-            {{ r.text }}<em class="ml-auto text-[14px] whitespace-nowrap text-ink-3 not-italic">{{ r.source === 'team' ? `added by ${r.by === me?.email ? 'you' : r.by}` : 'learned' }}</em>
+          <li v-for="(r, k) in rules" :key="k" class="flex flex-wrap items-baseline gap-x-3">
+            <span class="basis-full md:flex-1 md:basis-auto">{{ r.text }}</span><em class="text-[14px] whitespace-nowrap text-ink-3 not-italic">{{ r.source === 'team' ? `added by ${r.by === me?.email ? 'you' : r.by}` : 'learned' }}</em>
             <button class="text-[14px] text-ink-3 hover:text-magenta" :aria-label="`Remove rule: ${r.text}`" @click="removeRule(k)">remove</button>
           </li>
         </ul>
@@ -200,7 +213,7 @@ const blur = (e: Event) => (e.target as HTMLElement).innerText.trim()
           <button class="btn btn-sm" :disabled="!user || !pass">save</button>
         </form>
         <div class="mt-4 flex flex-wrap gap-2.5">
-          <button class="btn btn-ghost btn-sm" :disabled="running" @click="reread">read the site again</button>
+          <button class="btn btn-ghost btn-sm" :disabled="running" :aria-busy="running" @click="reread">read the site again</button>
           <button v-if="!confirmDelete" class="btn btn-ghost btn-sm" @click="confirmDelete = true">delete product</button>
           <span v-else class="flex flex-wrap items-center gap-2.5"><span class="text-ink-2">Delete {{ data.product.name }} and all its posts? This can’t be undone.</span>
             <button class="btn btn-sm !border-magenta !bg-magenta" @click="remove">yes, delete</button><button class="btn btn-ghost btn-sm" @click="confirmDelete = false">keep it</button></span>
@@ -208,4 +221,6 @@ const blur = (e: Event) => (e.target as HTMLElement).innerText.trim()
       </section>
     </div>
   </template>
+  <div v-else-if="loadError" class="grid max-w-[720px] gap-4 pt-6"><p class="m-0 text-[19px]">This product did not load: {{ loadError }}</p><button class="btn btn-ghost justify-self-start" @click="reload">try again <Icon name="play" /></button></div>
+  <p v-else class="waiting pt-6 text-[19px]">loading what it knows…</p>
 </template>

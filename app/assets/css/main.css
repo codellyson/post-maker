@@ -35,6 +35,14 @@ button { cursor: pointer; }
 /* Buttons */
 .btn { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 52px; padding: 0 18px; font: 300 20px var(--font-ui); background: var(--color-cyan); color: #000; border: 1.5px solid var(--color-cyan); text-decoration: none; }
 .btn:disabled { opacity: .45; cursor: default; }
+/* Anything the user waits on: a bar runs along the button's bottom edge until it is done. */
+.btn { position: relative; overflow: hidden; }
+.btn[aria-busy="true"] { opacity: 1; cursor: progress; }
+.btn[aria-busy="true"]::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 35%; background: currentColor; animation: busy-bar 1s cubic-bezier(.45, 0, .55, 1) infinite; }
+@keyframes busy-bar { from { transform: translateX(-100%); } to { transform: translateX(290%); } }
+.waiting { color: var(--color-ink-2); animation: waiting 1.4s ease-in-out infinite; }
+@keyframes waiting { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .btn[aria-busy="true"]::after { animation: none; width: 100%; opacity: .6; } .waiting { animation: none; } }
 .btn-ghost { background: transparent; color: var(--color-ink); border-color: var(--color-ink); }
 .btn-ghost:hover:not(:disabled) { color: var(--color-cyan); border-color: var(--color-cyan); }
 .btn-sm { min-height: 40px; font-size: 16px; gap: 14px; }

@@ -10,6 +10,7 @@ export type AiRequest<T extends z.ZodType> = {
   system: string // stable per product: cached
   parts: AiPart[] // the volatile request: text and images
   effort?: 'low' | 'medium' | 'high'
+  signal?: AbortSignal // cancels the request mid-way, so a stopped job stops being billed
 }
 export type AiProvider = { json<T extends z.ZodType>(req: AiRequest<T>): Promise<z.infer<T>> }
 
@@ -36,7 +37,7 @@ function anthropic(env: Env): AiProvider {
         system: [{ type: 'text', text: req.system, cache_control: { type: 'ephemeral' } }],
         output_config: { effort: req.effort ?? 'high', format: zodOutputFormat(req.schema) },
         messages: [{ role: 'user', content }],
-      }).finalMessage()
+      }, { signal: req.signal }).finalMessage()
       if (res.stop_reason === 'refusal') throw new Error(`The AI declined this request (${res.stop_details?.category ?? 'no reason given'}).`)
       if (res.stop_reason === 'max_tokens') throw new Error('The AI ran out of room before finishing. Try again.')
       if (!res.parsed_output) throw new Error('The AI returned something that did not match the expected shape.')

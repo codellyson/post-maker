@@ -160,7 +160,7 @@ onMounted(load)
         <template v-if="!reading">
           <div class="flex flex-wrap items-center gap-2.5">
             <button class="btn btn-sm" :disabled="blocked || checking" @click="start('read')">read local app <Icon name="play" /></button>
-            <button class="btn btn-ghost btn-sm" :disabled="checking" @click="runCheck">{{ checking ? 'checking… (starting the app can take a minute)' : 'check setup' }}</button>
+            <button class="btn btn-ghost btn-sm" :disabled="checking" :aria-busy="checking" @click="runCheck">{{ checking ? 'checking… (starting the app can take a minute)' : 'check setup' }}</button>
             <span v-if="!items && !checking" class="text-ink-2">Check the setup first. Nothing reads until every item passes.</span>
           </div>
 
@@ -174,7 +174,7 @@ onMounted(load)
                 </ol>
                 <div v-if="i.fix || i.id === 'data'" class="flex flex-wrap gap-2.5">
                   <button v-if="i.id === 'data'" class="btn btn-sm" :disabled="!!fixing" @click="start('open')">{{ i.state === 'ok' ? 'open the app again' : 'open the app' }}</button>
-                  <button v-if="i.fix" class="btn btn-ghost btn-sm" :disabled="!!fixing" @click="runFix(i.fix.action)">{{ fixing === i.fix.action ? 'working…' : i.fix.label }}</button>
+                  <button v-if="i.fix" class="btn btn-ghost btn-sm" :disabled="!!fixing" :aria-busy="fixing === i.fix.action" @click="runFix(i.fix.action)">{{ fixing === i.fix.action ? 'working…' : i.fix.label }}</button>
                 </div>
                 <form v-if="i.missing" class="grid gap-2" @submit.prevent="runFix('env', { file: i.missing.file, values: envValues })">
                   <label v-for="k in i.missing.keys" :key="k" class="grid gap-1 md:grid-cols-[220px_1fr] md:items-center">

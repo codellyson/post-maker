@@ -37,7 +37,7 @@ async function signOut() {
       <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] leading-none font-light text-cyan">invite someone</h2>
       <form class="grid gap-3" @submit.prevent="invite">
         <label class="field" for="invite-email">their email<input id="invite-email" v-model="email" class="input" type="email" required placeholder="ada@company.com"></label>
-        <button class="btn justify-self-start" :disabled="busy">send invite <Icon name="play" /></button>
+        <button class="btn justify-self-start" :disabled="busy" :aria-busy="busy">send invite <Icon name="play" /></button>
       </form>
       <p v-if="devLink" class="m-0 text-[13px] break-all text-ink-3">Local dev, no email sent. Invite link: {{ devLink }}</p>
       <button class="btn btn-ghost btn-sm mt-6 justify-self-start" @click="signOut">sign out</button>

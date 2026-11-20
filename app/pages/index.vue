@@ -17,26 +17,43 @@ async function load() {
   // A write started elsewhere (or the morning cron) is still running: follow it.
   if (data.value.job && (data.value.job.status === 'queued' || data.value.job.status === 'running') && !working.value) follow(data.value.job.id)
 }
-async function follow(jobId: string) {
+const jobId = ref<string | null>(null)
+const stopping = ref(false)
+async function stop() {
+  if (!jobId.value) return
+  stopping.value = true
+  await stopRunning(jobId.value)
+}
+async function follow(id: string) {
+  jobId.value = id
   working.value = true
   lines.value = []
   try {
-    const job = await followJob(jobId, l => (lines.value = l))
+    const job = await followJob(id, l => (lines.value = l))
     if (job.status === 'failed') toast(job.error ?? 'That did not work. Try again.')
     await Promise.all([load(), loadProducts()])
+  } catch (e) {
+    toast(`Lost track of the writing: ${errorText(e)} It may still finish; reload in a minute.`)
   } finally {
     working.value = false
+    stopping.value = false
+    jobId.value = null
   }
 }
 async function write() {
+  working.value = true
+  lines.value = []
   try {
     const { jobId } = await $fetch<{ jobId: string }>(`/api/products/${current.value}/write`, { method: 'POST' })
     follow(jobId)
   } catch (e) {
+    working.value = false
     toast(errorText(e))
   }
 }
-watch(current, () => { data.value = null; load().catch(e => toast(errorText(e))) }, { immediate: true })
+const loadError = ref('')
+function reload() { loadError.value = ''; data.value = null; load().catch(e => (loadError.value = errorText(e))) }
+watch(current, reload, { immediate: true })
 // The best tile wears the product's colour; the rest step through the other fills.
 const tileFill = (i: number) => fill(FILLS[(FILLS.indexOf(product.value!.colour) + i) % FILLS.length]!)
 const post = computed(() => data.value?.posts.find(p => p.id === selected.value))
@@ -72,9 +89,11 @@ const dateLabel = computed(() => data.value ? new Date(`${data.value.day}T12:00:
       <NuxtLink :to="`/products/${product.id}`" class="btn justify-self-start">see why and try again <Icon name="play" /></NuxtLink>
     </div>
     <template v-else-if="data">
+      <p v-if="!working && data.job?.status === 'failed'" class="mb-6 max-w-[720px] bg-magenta px-3.5 py-2.5 font-normal text-black">{{ data.job.error?.startsWith('Stopped by') ? data.job.error : `The last ${data.job.kind === 'read' ? 'read' : 'write'} failed: ${data.job.error || 'no reason given'}` }}</p>
       <div v-if="working" class="grid max-w-[720px] gap-5">
         <h2 class="m-0 border-b-[1.5px] border-cyan pb-3 text-[30px] font-light text-cyan">writing today’s posts</h2>
         <JobLines :lines="lines" :running="true" />
+        <button v-if="jobId" class="btn btn-ghost btn-sm justify-self-start" :disabled="stopping" :aria-busy="stopping" @click="stop">{{ stopping ? 'stopping after this step…' : 'stop' }}</button>
       </div>
       <div v-else-if="!data.posts.length" class="grid max-w-[720px] gap-5">
         <p class="text-[21px] text-ink-2">Nothing written for today yet. It writes every morning at 06:00 UTC, or now if you ask.</p>
@@ -96,5 +115,7 @@ const dateLabel = computed(() => data.value ? new Date(`${data.value.day}T12:00:
         <div ref="panel" class="scroll-mt-20 md:scroll-mt-4 lg:sticky lg:top-[18px]"><OpenPost v-if="post" :post="post" :product="product" @changed="load" /></div>
       </div>
     </template>
+    <div v-else-if="loadError" class="grid max-w-[720px] gap-4"><p class="m-0 text-[19px]">Today’s posts did not load: {{ loadError }}</p><button class="btn btn-ghost justify-self-start" @click="reload">try again <Icon name="play" /></button></div>
+    <p v-else class="waiting text-[19px]">loading today’s posts…</p>
   </div>
 </template>

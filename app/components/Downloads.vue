@@ -64,15 +64,15 @@ const clip = (size: Size) => run(`mp4-${size.label}`, async () => {
 <template>
   <div class="flex flex-wrap gap-2.5">
     <template v-if="v.format === 'carousel'">
-      <button v-if="platform === 'LinkedIn'" class="btn btn-ghost" :disabled="!!busy" @click="slides(SIZES.portrait, 'pdf')">{{ busy === 'pdf' ? 'making pdf…' : 'download pdf' }} <Icon name="play" /></button>
-      <button class="btn btn-ghost" :disabled="!!busy" @click="slides(platform === 'X' ? SIZES.square : SIZES.portrait, 'zip')">{{ busy === 'zip' ? 'making slides…' : `download ${v.slides.length} slides` }} <Icon name="play" /></button>
+      <button v-if="platform === 'LinkedIn'" class="btn btn-ghost" :disabled="!!busy" :aria-busy="busy === 'pdf'" @click="slides(SIZES.portrait, 'pdf')">{{ busy === 'pdf' ? 'making pdf…' : 'download pdf' }} <Icon name="play" /></button>
+      <button class="btn btn-ghost" :disabled="!!busy" :aria-busy="busy === 'zip'" @click="slides(platform === 'X' ? SIZES.square : SIZES.portrait, 'zip')">{{ busy === 'zip' ? 'making slides…' : `download ${v.slides.length} slides` }} <Icon name="play" /></button>
     </template>
     <template v-else-if="v.format === 'clip'">
-      <button class="btn btn-ghost" :disabled="!!busy" @click="clip(main)">{{ busy === `mp4-${main.label}` ? `making video… ${Math.round(progress * 100)}%` : `download mp4 ${main.label}` }} <Icon name="play" /></button>
-      <button class="btn btn-ghost btn-sm" :disabled="!!busy" @click="clip(SIZES.story)">{{ busy === `mp4-${SIZES.story.label}` ? `story… ${Math.round(progress * 100)}%` : 'story mp4' }}</button>
+      <button class="btn btn-ghost" :disabled="!!busy" :aria-busy="busy === `mp4-${main.label}`" @click="clip(main)">{{ busy === `mp4-${main.label}` ? `making video… ${Math.round(progress * 100)}%` : `download mp4 ${main.label}` }} <Icon name="play" /></button>
+      <button class="btn btn-ghost btn-sm" :disabled="!!busy" :aria-busy="busy === `mp4-${SIZES.story.label}`" @click="clip(SIZES.story)">{{ busy === `mp4-${SIZES.story.label}` ? `story… ${Math.round(progress * 100)}%` : 'story mp4' }}</button>
     </template>
     <template v-else>
-      <button class="btn btn-ghost" :disabled="!!busy" @click="copyImage">{{ busy === 'copy' ? 'copying…' : 'copy image' }} <Icon name="play" /></button>
+      <button class="btn btn-ghost" :disabled="!!busy" :aria-busy="busy === 'copy'" @click="copyImage">{{ busy === 'copy' ? 'copying…' : 'copy image' }} <Icon name="play" /></button>
       <button class="btn btn-ghost btn-sm" :disabled="!!busy" @click="image(main)">png {{ main.label }}</button>
       <button class="btn btn-ghost btn-sm" :disabled="!!busy" @click="image(SIZES.story)">story png</button>
     </template>

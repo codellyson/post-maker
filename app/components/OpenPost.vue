@@ -11,16 +11,17 @@ const brand = computed(() => brandOf(props.product.memory))
 const text = computed(() => props.post.copy[platform.value] ?? '')
 const fold = computed(() => FOLD[platform.value])
 const asking = ref(false)
-const busy = ref(false)
+const busy = ref<string | null>(null)
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined
 function edit(t: string) {
-  props.post.copy[platform.value] = t
+  const where = platform.value
+  props.post.copy[where] = t
   clearTimeout(saveTimer)
-  saveTimer = setTimeout(() => $fetch(`/api/posts/${props.post.id}`, { method: 'PATCH', body: { platform: platform.value, text: t } }).catch(e => toast(errorText(e))), 600)
+  saveTimer = setTimeout(() => $fetch(`/api/posts/${props.post.id}`, { method: 'PATCH', body: { platform: where, text: t } }).catch(e => toast(`Not saved: ${errorText(e)}`)), 600)
 }
 async function act(path: string, method: 'POST' | 'DELETE', bodyData?: object, msg?: string) {
-  busy.value = true
+  busy.value = [method, path, (bodyData as { platform?: string } | undefined)?.platform].filter(Boolean).join(' ')
   try {
     await $fetch(`/api/posts/${props.post.id}/${path}`, { method: method as 'POST', body: bodyData })
     if (msg) toast(msg)
@@ -29,7 +30,7 @@ async function act(path: string, method: 'POST' | 'DELETE', bodyData?: object, m
   } catch (e) {
     toast(errorText(e))
   } finally {
-    busy.value = false
+    busy.value = null
   }
 }
 const copy = copyText
@@ -70,14 +71,14 @@ function openPlatform() {
       <template v-else><span class="pill bg-orange">Draft</span><span>needs one person to approve it</span></template>
     </div>
     <div class="flex flex-wrap gap-2.5">
-      <button v-if="post.status !== 'approved'" class="btn btn-ghost btn-sm" :disabled="busy" @click="act('approve', 'POST', undefined, 'Approved. Anyone on the team can post it now.')">approve</button>
-      <button class="btn btn-ghost btn-sm" :disabled="busy" @click="asking = !asking">mark posted</button>
-      <button v-if="post.postings.length" class="btn btn-ghost btn-sm" :disabled="busy" @click="act('posted', 'DELETE')">undo posted</button>
+      <button v-if="post.status !== 'approved'" class="btn btn-ghost btn-sm" :disabled="!!busy" :aria-busy="busy === 'POST approve'" @click="act('approve', 'POST', undefined, 'Approved. Anyone on the team can post it now.')">approve</button>
+      <button class="btn btn-ghost btn-sm" :disabled="!!busy" @click="asking = !asking">mark posted</button>
+      <button v-if="post.postings.length" class="btn btn-ghost btn-sm" :disabled="!!busy" :aria-busy="busy === 'DELETE posted'" @click="act('posted', 'DELETE')">undo posted</button>
     </div>
     <div v-if="asking" class="grid max-w-[420px] gap-2.5 border-[1.5px] border-ink p-3.5">
       <span>Where did you post it?</span>
       <div class="flex flex-wrap gap-2">
-        <button v-for="p in platforms" :key="p" class="btn btn-sm" :class="p !== platform && 'btn-ghost'" :disabled="busy" @click="act('posted', 'POST', { platform: p }, 'Marked posted. The team can see it.')">{{ p.toLowerCase() }}</button>
+        <button v-for="p in platforms" :key="p" class="btn btn-sm" :class="p !== platform && 'btn-ghost'" :disabled="!!busy" :aria-busy="busy === `POST posted ${p}`" @click="act('posted', 'POST', { platform: p }, 'Marked posted. The team can see it.')">{{ p.toLowerCase() }}</button>
       </div>
     </div>
     <span class="text-[13px] text-ink-3 tabular-nums" :class="text.length > LIMITS[platform] && 'text-magenta'">{{ text.length }} / {{ LIMITS[platform].toLocaleString() }} characters<template v-if="fold"> · first {{ fold }} show before “more”</template></span>

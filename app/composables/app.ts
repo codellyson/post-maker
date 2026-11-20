@@ -39,17 +39,34 @@ export function toast(msg: string) {
   const t = toastMsg()
   t.value = msg
   clearTimeout(toastTimer)
-  toastTimer = setTimeout(() => (t.value = null), 2400)
+  // Long messages (usually errors) stay up long enough to read.
+  toastTimer = setTimeout(() => (t.value = null), Math.max(2400, msg.length * 70))
 }
 export const useToast = toastMsg
 
 // Polls a background job until it ends. Calls `onLine` as new progress lines arrive.
 export async function followJob(jobId: string, onLine?: (lines: string[]) => void): Promise<Job> {
+  let misses = 0
   for (;;) {
-    const job = await $fetch<Job>(`/api/jobs/${jobId}`)
-    onLine?.(job.progress)
-    if (job.status === 'done' || job.status === 'failed') return job
+    try {
+      const job = await $fetch<Job>(`/api/jobs/${jobId}`)
+      misses = 0
+      onLine?.(job.progress)
+      if (job.status === 'done' || job.status === 'failed') return job
+    } catch (e) {
+      // A dropped connection should not end the wait; the job keeps running on the server.
+      if (++misses > 8) throw e
+    }
     await new Promise(r => setTimeout(r, 1500))
+  }
+}
+
+// Stop a running read or write; the caller's followJob then sees it end.
+export async function stopRunning(jobId: string) {
+  try {
+    await $fetch(`/api/jobs/${jobId}/stop`, { method: 'POST' })
+  } catch (e) {
+    toast(errorText(e))
   }
 }
 

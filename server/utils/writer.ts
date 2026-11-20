@@ -120,6 +120,7 @@ export async function writePosts(env: Env, productId: string, progress: Progress
   await progress('writing ideas')
   const { drafts } = await ai.json({
     schema: memory.instagram ? Drafts : DraftsNoInstagram,
+    signal: progress.signal,
     system: sys,
     parts: [
       { type: 'text', text: 'Screens you can use, by id:' },
@@ -140,6 +141,7 @@ ${memory.repo.readme.slice(0, 4000)}` : ''}` },
   await progress(`checking ${drafts.length} ideas against the voice rules`)
   const verdict = await ai.json({
     schema: Verdict,
+    signal: progress.signal,
     system: sys,
     effort: 'medium',
     parts: [{ type: 'text', text: `You are the team's strict editor. Keep only posts someone would post with at most a small edit; rank them best first. Drop anything generic, off-voice, unsupported by what the product does, or too close to another kept post.
@@ -177,6 +179,7 @@ ${drafts.map((d, i) => `#${i} [${d.format}] ${d.title}\nhook: ${d.hook}\nvisual:
   const kept = verdict.keep.slice(0, slots).map(k => drafts[k.index]).filter(Boolean).map(d => ({ title: d!.title, pattern: d!.pattern, day }))
   memory.anglesUsed = [...(memory.anglesUsed ?? []), ...kept].slice(-60)
   const swap = loose.map(r => db.prepare('UPDATE posts SET replaced_at = ? WHERE id = ?').bind(now, r.id))
+  await progress('saving')
   await db.batch([...swap, ...stmts, ...drops, db.prepare('UPDATE products SET memory = ?, updated_at = ? WHERE id = ?').bind(JSON.stringify(memory), now, productId)])
   await progress(`kept ${stmts.length}, dropped ${drops.length}`)
 }

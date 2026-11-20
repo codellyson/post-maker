@@ -41,12 +41,12 @@ async function verify() {
     <p class="mt-3 mb-9 max-w-[52ch] text-[19px] text-ink-2">{{ invite ? 'You were invited to a team. Sign in with the address the invite went to.' : 'Today’s best posts for your products, ready to copy. We email you a six-digit code; no password.' }}</p>
     <form v-if="step === 'email'" class="grid max-w-[560px] gap-[18px]" @submit.prevent="send">
       <label class="field" for="email">your email<input id="email" v-model="email" class="input" type="email" autocomplete="email" required placeholder="you@company.com"></label>
-      <button class="btn justify-self-start" :disabled="busy">email me a code <Icon name="play" /></button>
+      <button class="btn justify-self-start" :disabled="busy" :aria-busy="busy">email me a code <Icon name="play" /></button>
     </form>
     <form v-else class="grid max-w-[560px] gap-[18px]" @submit.prevent="verify">
       <label class="field" for="code">the code we sent to {{ email }}<input id="code" v-model="code" class="input tracking-[.2em]" inputmode="numeric" autocomplete="one-time-code" required placeholder="000000"></label>
       <div class="flex flex-wrap gap-2.5">
-        <button class="btn" :disabled="busy">sign in <Icon name="play" /></button>
+        <button class="btn" :disabled="busy" :aria-busy="busy">sign in <Icon name="play" /></button>
         <button type="button" class="btn btn-ghost" @click="step = 'email'">use another email</button>
       </div>
     </form>

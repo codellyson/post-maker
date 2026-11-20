@@ -13,7 +13,11 @@ async function load() {
   posts.value = await $fetch<Post[]>(`/api/products/${current.value}/posts`)
   if (!posts.value.some(p => p.id === selected.value)) selected.value = posts.value[0]?.id ?? null
 }
-watch(current, () => { posts.value = null; load().catch(e => toast(errorText(e))) }, { immediate: true })
+const loadError = ref('')
+function reload() { loadError.value = ''; posts.value = null; load().catch(e => (loadError.value = errorText(e))) }
+watch(current, reload, { immediate: true })
+// A background write just finished: show its posts.
+watch(() => product.value?.job, (now, was) => { if (was === 'write' && !now) load().catch(() => {}) })
 
 const stateOf = (p: Post) => (p.postings.length ? 'posted' : p.status === 'approved' ? 'approved' : p.replaced ? 'replaced' : 'waiting')
 const shown = computed(() => (posts.value ?? []).filter(p => show.value === 'all' || stateOf(p) === show.value))
@@ -53,22 +57,25 @@ const stateText = (p: Post) => p.postings.length ? `posted on ${[...new Set(p.po
       <span class="text-[15px] text-ink-3">last 90 days</span>
     </div>
 
+    <p v-if="product.job === 'write'" class="waiting mb-6 text-[17px] text-cyan">writing today’s posts… they appear here when done.</p>
     <p v-if="posts && !shown.length" class="text-[19px] text-ink-2">{{ posts.length ? 'Nothing here with this filter.' : 'No posts yet. Today writes the first ones.' }}</p>
     <div v-else-if="posts" class="grid grid-cols-1 items-start gap-9 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)]">
       <div class="grid min-w-0 gap-8">
         <section v-for="d in days" :key="d.day" class="grid gap-1">
           <h2 class="m-0 border-b-[1.5px] border-rule pb-2 text-[17px] font-light text-cyan">{{ dayLabel(d.day) }}</h2>
-          <button v-for="p in d.posts" :key="p.id" class="grid grid-cols-[12px_minmax(0,1fr)_auto] items-baseline gap-x-3 border-b border-[#1a1a1a] py-3 text-left hover:bg-raise aria-pressed:bg-raise" :aria-pressed="p.id === selected" @click="pick(p.id)">
+          <button v-for="p in d.posts" :key="p.id" class="grid grid-cols-[12px_minmax(0,1fr)] items-baseline gap-x-3 border-b md:grid-cols-[12px_minmax(0,1fr)_auto] border-[#1a1a1a] py-3 text-left hover:bg-raise aria-pressed:bg-raise" :aria-pressed="p.id === selected" @click="pick(p.id)">
             <i class="size-3 self-center" :style="{ background: fill(product.colour) }" />
             <span class="min-w-0">
               <span class="block truncate text-[19px]">{{ p.title }}</span>
               <span class="block truncate text-[15px] text-ink-3">{{ p.hook }}</span>
             </span>
-            <span class="text-right text-[14px] whitespace-nowrap" :class="p.postings.length ? 'text-lime' : p.status === 'approved' ? 'text-cyan' : 'text-ink-3'">{{ p.format }} · {{ stateText(p) }}</span>
+            <span class="col-start-2 text-[14px] md:col-start-auto md:text-right md:whitespace-nowrap" :class="p.postings.length ? 'text-lime' : p.status === 'approved' ? 'text-cyan' : 'text-ink-3'">{{ p.format }} · {{ stateText(p) }}</span>
           </button>
         </section>
       </div>
       <div ref="panel" class="scroll-mt-20 md:scroll-mt-4 lg:sticky lg:top-[18px]"><OpenPost v-if="post" :post="post" :product="product" @changed="load" /></div>
     </div>
+    <div v-else-if="loadError" class="grid max-w-[720px] gap-4"><p class="m-0 text-[19px]">Posts did not load: {{ loadError }}</p><button class="btn btn-ghost justify-self-start" @click="reload">try again <Icon name="play" /></button></div>
+    <p v-else class="waiting text-[19px]">loading posts…</p>
   </div>
 </template>
