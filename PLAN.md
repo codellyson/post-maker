@@ -251,3 +251,13 @@ Second deploy, 19 November 2026: version `1ad3a4c3`. Migration 0005 (`posts.repl
 5. Until the token is set, pushes run the checks and skip the deploy cleanly.
 
 `ANTHROPIC_API_KEY` and `CRED_KEY` stay Worker secrets on Cloudflare and are never put in GitHub.
+
+### Desktop updates (21 November 2026)
+
+- The app is ad-hoc signed (`signingIdentity: "-"`) and carries the Tauri updater.
+- On launch it checks the latest GitHub release's `latest.json`. If there is a newer version, it asks "Install and restart" or "Later". It never updates silently.
+- Each `v*` tag sets the app version and publishes three files: the zip, `Post-maker.app.tar.gz` plus its signature, and `latest.json`.
+- Update signing key: `~/.tauri/post-maker.key` on the owner's Mac, with no password. The public key is in `desktop/tauri.conf.json`. CI reads the private key from the `TAURI_SIGNING_PRIVATE_KEY` secret.
+- Back up the private key. Losing it means installed apps can never take another update.
+- Local builds need the key: `TAURI_SIGNING_PRIVATE_KEY=~/.tauri/post-maker.key TAURI_SIGNING_PRIVATE_KEY_PASSWORD= cargo tauri build --bundles app`, run from `post-maker/`.
+- Apple silicon only: `darwin-aarch64`.

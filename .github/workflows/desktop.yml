@@ -1,12 +1,15 @@
-# Push a version tag (git tag v0.2.0 && git push origin v0.2.0) to build the macOS desktop app
-# against the live site and attach it to a GitHub release, where the team downloads it.
-# The app is unsigned: the first time, right-click it and choose Open.
+# Push a version tag (git tag v0.3.0 && git push origin v0.3.0) to build the macOS desktop app
+# against the live site and publish it as a GitHub release. The release also carries the signed update
+# and latest.json, which installed apps check on launch to offer the new version.
+#
+# Secret (repo → Settings → Secrets and variables → Actions):
+#   TAURI_SIGNING_PRIVATE_KEY  contents of ~/.tauri/post-maker.key on the owner's Mac (no password)
+# The app is ad-hoc signed ("-"), not notarised: the first time, right-click it and choose Open.
 name: desktop
 
 on:
   push:
     tags: ['v*']
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -25,18 +28,32 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: desktop
-      # Same CLI version as local builds. Run from the repo root: beforeBuildCommand is `sh desktop/stage-engine.sh`.
+      # The app's version comes from the tag, so the updater can tell releases apart.
+      # Run from the repo root: beforeBuildCommand is `sh desktop/stage-engine.sh`.
       - name: Build Post maker.app
         env:
           PM_APP_URL: https://postmaker.kreativekorna.com
-        run: npx --yes @tauri-apps/cli@2.11.2 build --bundles app
-      - name: Zip
-        run: ditto -c -k --keepParent "desktop/target/release/bundle/macos/Post maker.app" "$RUNNER_TEMP/Post-maker-mac.zip"
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          npx --yes @tauri-apps/cli@2.11.2 build --bundles app --config "{\"version\":\"$version\"}"
+      - name: Package
+        run: |
+          out="$RUNNER_TEMP/release" && mkdir -p "$out"
+          dir="desktop/target/release/bundle/macos"
+          ditto -c -k --keepParent "$dir/Post maker.app" "$out/Post-maker-mac.zip"
+          cp "$dir/Post maker.app.tar.gz" "$out/Post-maker.app.tar.gz"
+          version="${GITHUB_REF_NAME#v}"
+          node -e '
+            const [version, tag, sig] = process.argv.slice(1)
+            const url = `https://github.com/codellyson/post-maker/releases/download/${tag}/Post-maker.app.tar.gz`
+            const json = { version, notes: `Post maker ${tag}`, pub_date: new Date().toISOString(), platforms: { "darwin-aarch64": { signature: sig, url } } }
+            require("fs").writeFileSync(process.env.RUNNER_TEMP + "/release/latest.json", JSON.stringify(json, null, 2))
+          ' "$version" "$GITHUB_REF_NAME" "$(cat "$dir/Post maker.app.tar.gz.sig")"
       - name: Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="${GITHUB_REF_NAME}"
-          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then tag="desktop-$(date -u +%Y%m%d-%H%M)"; fi
-          gh release create "$tag" "$RUNNER_TEMP/Post-maker-mac.zip" --title "Post maker $tag" \
-            --notes "macOS app, opens https://postmaker.kreativekorna.com. Unsigned: the first time, right-click it and choose Open."
+          gh release create "$GITHUB_REF_NAME" "$RUNNER_TEMP"/release/* --title "Post maker $GITHUB_REF_NAME" \
+            --notes "macOS (Apple silicon). Download Post-maker-mac.zip. Ad-hoc signed: the first time, right-click the app and choose Open. Installed copies offer this version on their next launch."

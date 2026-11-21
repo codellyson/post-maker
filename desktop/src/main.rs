@@ -8,7 +8,9 @@ use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
-use tauri::{Manager, RunEvent};
+use tauri::{AppHandle, Manager, RunEvent};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
+use tauri_plugin_updater::UpdaterExt;
 
 const ENGINE: &str = "127.0.0.1:4710";
 
@@ -87,12 +89,39 @@ fn watch_engine(slot: Arc<Mutex<Option<Child>>>, problem: Arc<Mutex<Option<Strin
     });
 }
 
+// SIGTERM, not kill(): the engine then stops any dev server it started before it exits.
+fn stop_engine(app: &AppHandle) {
+    if let Some(child) = app.state::<Engine>().0.lock().unwrap().take() {
+        let _ = Command::new("kill").arg(child.id().to_string()).status();
+    }
+}
+
+// On launch, look for a newer release on GitHub. If there is one, ask before installing; never update silently.
+// Any failure (offline, no release yet) just leaves the current version running.
+fn check_for_update(app: AppHandle) {
+    thread::spawn(move || tauri::async_runtime::block_on(async move {
+        let Ok(updater) = app.updater() else { return };
+        let Ok(Some(update)) = updater.check().await else { return };
+        let yes = app.dialog()
+            .message(format!("Post maker {} is ready. Install it now? The app restarts when it is done.", update.version))
+            .title("Update available")
+            .buttons(MessageDialogButtons::OkCancelCustom("Install and restart".into(), "Later".into()))
+            .blocking_show();
+        if !yes { return }
+        match update.download_and_install(|_, _| {}, || {}).await {
+            Ok(()) => { stop_engine(&app); app.restart() }
+            Err(e) => { app.dialog().message(format!("The update did not install: {e}")).title("Update failed").blocking_show(); }
+        }
+    }));
+}
+
 fn main() {
     let slot = Arc::new(Mutex::new(None));
     let problem = Arc::new(Mutex::new(None));
     let (watched, noted) = (slot.clone(), problem.clone());
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(Engine(slot))
         .manage(Problem(problem))
         .invoke_handler(tauri::generate_handler![engine_status, app_url])
@@ -104,16 +133,14 @@ fn main() {
                 .map(|p| p.to_string_lossy().into_owned())
                 .unwrap_or_else(|| format!("{}/../engine/server.ts", env!("CARGO_MANIFEST_DIR")));
             watch_engine(watched.clone(), noted.clone(), server);
+            check_for_update(app.handle().clone());
             Ok(())
         })
         .build(tauri::generate_context!())
         .expect("failed to start Post maker")
         .run(|app, event| {
             if let RunEvent::Exit = event {
-                // SIGTERM, not kill(): the engine then stops any dev server it started before it exits.
-                if let Some(child) = app.state::<Engine>().0.lock().unwrap().take() {
-                    let _ = Command::new("kill").arg(child.id().to_string()).status();
-                }
+                stop_engine(app);
             }
         });
 }
