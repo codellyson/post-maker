@@ -5,7 +5,7 @@ const route = useRoute()
 const products = useProducts()
 const current = useCurrent()
 const me = useMe()
-const bare = computed(() => route.path === '/signin' || route.path.startsWith('/render'))
+const bare = computed(() => route.path === '/signin' || route.path.startsWith('/render') || (route.path === '/' && !me.value))
 const nav = [
   { to: '/', label: 'today', icon: 'today' },
   { to: '/posts', label: 'all posts', icon: 'posts' },
@@ -49,7 +49,10 @@ function pick(id: string) {
           <i class="size-2.5 flex-none" :style="{ background: fill(p.colour) }" />{{ p.name }}<span v-if="p.job" class="waiting ml-auto text-[13px] text-cyan">{{ p.job === 'write' ? 'writing' : 'reading' }}</span><span v-else class="ml-auto text-cyan tabular-nums">{{ p.ready }}</span>
         </button>
       </div>
-      <p v-if="me" class="mt-auto hidden truncate text-[13px] text-ink-3 md:block">{{ me.email }}</p>
+      <div v-if="me" class="mt-auto hidden gap-1.5 md:grid">
+        <p class="m-0 truncate text-[13px] text-ink-3">{{ me.email }}</p>
+        <button class="justify-self-start text-[13px] text-ink-2 underline decoration-[#444] underline-offset-4 hover:text-cyan" @click="signOut">sign out</button>
+      </div>
     </nav>
     <main class="min-w-0 overflow-x-clip px-4 pt-[18px] pb-28 md:pr-8 md:pb-20 md:pl-0">
       <slot />

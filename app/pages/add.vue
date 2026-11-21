@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const url = ref('')
+// The front page's link field sends the link along through sign-in.
+const url = ref(String(useRoute().query.url ?? ''))
 const user = ref('')
 const pass = ref('')
 const busy = ref(false)

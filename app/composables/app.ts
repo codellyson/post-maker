@@ -25,6 +25,13 @@ export async function loadProducts() {
   return products.value
 }
 
+export async function signOut() {
+  await $fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+  useMe().value = null
+  useProducts().value = []
+  await navigateTo('/')
+}
+
 export const fillVar = (f: string) => `var(--color-${f})`
 
 // Readable message from a failed $fetch.

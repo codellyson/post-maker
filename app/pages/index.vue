@@ -2,6 +2,7 @@
 import { FILLS } from '#shared/types'
 const fill = fillVar
 const go = navigateTo
+const me = useMe()
 const products = useProducts()
 const current = useCurrent()
 const product = computed(() => products.value.find(p => p.id === current.value))
@@ -68,7 +69,8 @@ const dateLabel = computed(() => data.value ? new Date(`${data.value.day}T12:00:
 </script>
 
 <template>
-  <div v-if="!products.length" class="grid gap-6 pt-6">
+  <Landing v-if="!me" />
+  <div v-else-if="!products.length" class="grid gap-6 pt-6">
     <Pivot :items="[{ id: 'hi', label: 'post maker' }]" current="hi" />
     <p class="max-w-[48ch] text-[21px] text-ink-2">Add your first product by pasting its link. Post maker reads it and writes today’s best posts for it.</p>
     <NuxtLink to="/add" class="btn justify-self-start">add a product <Icon name="play" /></NuxtLink>

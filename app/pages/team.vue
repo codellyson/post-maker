@@ -16,11 +16,6 @@ async function invite() {
     busy.value = false
   }
 }
-async function signOut() {
-  await $fetch('/api/auth/logout', { method: 'POST' })
-  me.value = null
-  navigateTo('/signin')
-}
 </script>
 
 <template>
